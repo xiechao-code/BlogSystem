@@ -37,8 +37,19 @@
 <!----------------------------------------------------------------------------------------->
       <div class="right-box">
         <div>
-          <h2>{{article_title}}</h2>
-          <p></p>
+          <ul class="articl-list">
+            <li v-for="item in article" v-bind:key="item._id"> <!-- key必须且值唯一 -->
+              <h2>{{item.title}}</h2>
+              <p class="content">{{item.value}}</p>   <!--文章内容-->
+              <div class="article-attribute">
+                <span style="color:#6b6b6b">{{item.publishtime}}</span>
+                丨
+                <span>阅读数0</span>
+                丨
+                <span>评论数0</span>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -49,11 +60,11 @@
 export default {
   data(){
     return{
-      article_title:""
+      article:[]
     }
   },
   created(){
-    // this.findArticles();
+    this.findArticles();
   },
   methods:{
     findArticles(){
@@ -64,11 +75,10 @@ export default {
           }
         }).then(result =>{
           if(result.data.err1){
-              this.$Message.error('内部服务器错误！');
+            this.$Message.error('内部服务器错误！');
+          }else{
+            this.article = result.data;
           }
-          if(result.data.status==0){
-              this.article_title = result.data.data.title;
-            }
         })
     }
   }
@@ -92,6 +102,9 @@ export default {
   width:1200px;
   margin: 0 auto;
 }
+
+
+/* 左边第一个盒子 */
 .left-box{
   width: 300px;
   height: 180px;
@@ -115,17 +128,12 @@ export default {
   font-family: "微软雅黑";
   word-wrap: break-word;/*允许长单词换行到下一行*/
 }
-.right-box{
-  width: 890px;
-  height: 200px;
-  background-color: white;
-  float: right;
-}
 .avatar{
   width: 50px;
   height: 50px;
   border-radius: 50%;
 }
+/* 左边第二个盒子 */
 .left-box .box2{
   padding: 15px;
   text-align: center;
@@ -149,5 +157,35 @@ export default {
   padding: 12px 16px;
   line-height: 1;
   background-color: #f8f8f8;
+}
+
+/* 右边文章列表部分 */
+.right-box{
+  width: 890px;
+  height: 200px;
+  float: right;
+}
+.right-box .articl-list li{
+  list-style: none;
+  background-color: #fff;
+  border-bottom: 1px solid black;
+  padding: 12px 24px 12px 24px;
+  font-family: "微软雅黑";
+}
+.right-box .articl-list li h2{
+  margin-bottom: 6px;
+  font-size: 18px;
+  line-height: 24px;
+  color: #3d3d3d;
+  display: inline-block;
+}
+.right-box .articl-list li .content{
+  color: #999;
+  font-size: 14px;
+}
+.right-box .articl-list li .article-attribute{
+  color: #999;
+  font-size: 14px;
+  padding-top:6px;
 }
 </style>

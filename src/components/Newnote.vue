@@ -54,7 +54,16 @@ export default {
               this.$Message.error('内部服务器错误！');
           }
           if(result.data.success){
-              this.$Message.success('文章发布成功！');
+              this.$Message.success('文章发布成功，2s后跳转到个人主页！');
+              var r = this.$router;
+              //设置定时器，2s后跳转到我的博客,否则因为异步会先跳过去
+                    function Redirect() {
+                        r.push("/Myblog"); 
+                    }
+                    setTimeout(function () {
+                        Redirect();
+                    },2000);
+                    window.clearTimeout();
             }
         })
       }

@@ -36,10 +36,10 @@
 export default {
   data(){
     return{
-      phone:"15198067296",
-      username:"xxx",
-      userpassword:"xc1997",
-      confirmpassword:"xc1997",  // 以上四个为绑定的表单值
+      phone:"",
+      username:"",
+      userpassword:"",
+      confirmpassword:"",  // 以上四个为绑定的表单值
       eye:true,
       flag:false // 控制警告框显示
     }
