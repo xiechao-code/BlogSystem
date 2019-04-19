@@ -1,6 +1,7 @@
 var db = require("../models/db.js");
 var md5 = require("../models/md5.js");
 var sd = require("silly-datetime"); //时间格式化
+var mongoose = require("mongoose"); //将字符将id转换为mongodb的ObjectID型需要的包
 
 
 //注册业务实现
@@ -89,13 +90,18 @@ exports.doPublishArticle = function(req,res){
   var title = req.query.title;
   var value = req.query.value;
   var author = req.query.author;
+  var input = req.query.input;
   var ttt = sd.format(new Date(),'YYYY/MM/DD HH:mm:ss');
+  // var article_type = req.query.article_type;
 
   db.insertOne("blogsystem","articles",{
     "title":title,
     "value":value,
+    "input":input,
     "author":author,
-    "publishtime":ttt
+    "publishtime":ttt,
+    "count_read":'0',
+    "count_comment":'0'
   },function(err,result){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
@@ -109,7 +115,7 @@ exports.doPublishArticle = function(req,res){
 
 
 
-//查询文章业务实现
+//查询某个用户所有文章业务实现
 exports.doFindArticles = function(req,res){
   var author = req.query.author;
   
@@ -118,8 +124,40 @@ exports.doFindArticles = function(req,res){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;
     }
-    // var result = JSON.stringify(result); //将数据转换为json格式发送，否则前端显示【object Object】
-    // res.send('{message:"'+ result[0].title +'"}'); 
     res.send(result); //结果是一个数组对象[ { _id: 5cb5aa2bfdc24d20c4802a42,title: '测试1',value: '# 标题\n内容',author: '张松' } ]
-  });
+  })
+}
+
+
+
+
+
+//删除文章业务实现
+exports.doDeleteArticle = function(req,res){
+  var article_id = req.query.article_id;
+
+  db.deleteMany("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},function(err,result){
+    if(err){
+      res.send('{"err":"错误"}');
+      return;
+    }
+    res.send("1"); //成功删除
+  })
+}
+
+
+
+
+
+//查询一篇文章业务实现
+exports.doFindArticle = function(req,res){
+  var article_id = req.query.id;
+  
+  db.find("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    res.send(result); 
+  })
 }

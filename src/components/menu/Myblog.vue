@@ -38,16 +38,36 @@
       <div class="right-box">
         <div>
           <ul class="articl-list">
+            <li class="top-li">
+              <Checkbox v-model="single"> 只看原创</Checkbox>
+              <router-link to="/Manageblog"><Button icon="md-settings" size="small">管理博客</Button></router-link>
+            </li>
             <li v-for="item in article" v-bind:key="item._id"> <!-- key必须且值唯一 -->
-              <h2>{{item.title}}</h2>
-              <p class="content">{{item.value}}</p>   <!--文章内容-->
-              <div class="article-attribute">
-                <span style="color:#6b6b6b">{{item.publishtime}}</span>
-                丨
-                <span>阅读数0</span>
-                丨
-                <span>评论数0</span>
-              </div>
+                <!-- 文章标题 -->
+                  <h2>
+                    <router-link :to="'/Articledetails/' + item._id">
+                      <span class="article-type">原</span>&nbsp;{{item.title}}
+                    </router-link>
+                  </h2>
+                <!--文章内容-->
+                  <router-link :to="'/Articledetails/' + item._id">
+                    <div class="content">{{ToText(item.input)}}</div>
+                  </router-link> 
+                <!--文章属性-->  
+                  <div class="article-attribute">
+                    <span style="color:#6b6b6b">{{item.publishtime}}</span>
+                    丨
+                    <span>阅读数<span class="badge">{{item.count_read}}</span></span>
+                    丨
+                    <span>评论数<span class="badge" style="background-color:#5cb85cd4">{{item.count_comment}}</span></span>
+                  </div>
+                <!--文章操作按钮-->
+                  <div class="article-option" >
+                    <div>
+                    <Button type="warning" size="small" ghost><router-link :to="'/Newnote/' + item._id">编辑</router-link></Button>
+                    <Button type="error" size="small" ghost @click="delete_article(item._id)">删除</Button>
+                    </div>
+                  </div>
             </li>
           </ul>
         </div>
@@ -57,14 +77,16 @@
 </template>
 
 <script>
+ 
 export default {
   data(){
     return{
-      article:[]
+      article:[],  //文章数组
+      single:false  //只看原创选择框
     }
   },
   created(){
-    this.findArticles();
+    this.findArticles();  //查询所有文章
   },
   methods:{
     findArticles(){
@@ -80,6 +102,34 @@ export default {
             this.article = result.data;
           }
         })
+    },
+    delete_article(id){ //删除文章
+      this.$Modal.confirm({  //iview对话框
+        title: "提示",
+        content: "确定要删除当前文章？",
+        onOk: () => {
+          this.$axios.get("/dodeletearticle",{
+            params:{
+              'article_id':id
+            }
+          }).then(result =>{
+            if(result.data.err){
+              this.$Message.error('该服务器错误！');
+            }
+            if(result.data===1){
+              this.$Message.success('该文章已删除！');
+              this.findArticles(); //再调用一次获取文章可以实现局部刷新
+            }
+          })
+        },
+        onCancel: () => {
+        return;
+        }
+      });
+    },
+    ToText(HTML){  //这个方法的功能是将html格式转换为纯文本
+      var input = HTML;
+      return input.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi,'').replace(/<[^>]+?>/g,'').replace(/\s+/g,' ').replace(/ /g,' ').replace(/>/g,' ');  
     }
   }
 }
@@ -89,7 +139,7 @@ export default {
 <style scoped>
 #app{
   width: 100%;
-  height: 599px;
+  height: 1000px;
   background-image: url(../../assets/images/bg-02.jpg);
   background-attachment: fixed;  /* 设置背景图片固定，不随页面滚动 */
 }
@@ -168,24 +218,84 @@ export default {
 .right-box .articl-list li{
   list-style: none;
   background-color: #fff;
-  border-bottom: 1px solid black;
+  border-top: 1px solid black;
   padding: 12px 24px 12px 24px;
   font-family: "微软雅黑";
+}
+.right-box .articl-list li:hover{
+  background-color: #f5f6f7;
 }
 .right-box .articl-list li h2{
   margin-bottom: 6px;
   font-size: 18px;
   line-height: 24px;
-  color: #3d3d3d;
   display: inline-block;
 }
-.right-box .articl-list li .content{
-  color: #999;
-  font-size: 14px;
+.right-box .articl-list li h2 a{
+  color: #3d3d3d;
+  transition: color .1s ease;
 }
-.right-box .articl-list li .article-attribute{
+.right-box .articl-list li h2 a:hover{
+  color: #ec8329;
+}
+.right-box .articl-list li .content{
+  color: #9a9a9a;
+  font-size: 14px;
+  height: 42px;
+  white-space: normal;  /*文本自动处理换行*/
+  letter-spacing:1px;
+  /* 以下设置文本超出显示省略号 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.right-box .articl-list li .article-attribute{  /*文章的时间，阅读数，评论数*/
   color: #999;
   font-size: 14px;
-  padding-top:6px;
+  padding-top:8px;
+  width: 400px;
+  float: left;
+}
+.right-box .articl-list li .article-attribute .badge{ /*徽章*/
+  display: inline-block;
+  width: 24px;
+  height: 16px;
+  background: #ffb83c;
+  border-radius: 8px;
+  text-align: center;
+  line-height: 16px;
+  color: #fff;
+  margin-left: 4px;
+}
+.right-box .articl-list li .article-option{  /*编辑删除操作按钮*/
+  width: 100px;
+  display: inline-block;
+  position: relative;
+  left: 355px;
+  top: 6px;
+  visibility: hidden;
+}
+.right-box .articl-list li:hover .article-option{ /*鼠标移到li里面，编辑删除按钮显示*/
+  visibility:visible;
+}
+.right-box .articl-list .top-li{
+  display: flex; /*弹性布局，垂直居中，两端对齐*/
+  justify-content: space-between;
+  align-items: center;
+}
+.right-box .articl-list li .article-type{  /*原创小徽标*/
+  color: #ca0c16;
+  border: 1px solid #f4ced0;
+  display: inline-block;
+  width: 26px;
+  height: 26px;
+  line-height: 26px;
+  text-align: center;
+  font-size: 12px;
+  border-radius: 50%;
+  position: relative;
+  top: -1px;
 }
 </style>

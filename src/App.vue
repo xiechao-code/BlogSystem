@@ -26,7 +26,7 @@
                         首页</router-link>
                     </MenuItem>
                     <MenuItem name="2">
-                        <router-link to="/newnote"><Icon type="ios-book"></Icon>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+                        <router-link :to="'/Newnote/' + 0"><Icon type="ios-book"></Icon>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
                         写博客</router-link>
                     </MenuItem>
                     <MenuItem name="3">
@@ -39,7 +39,7 @@
                         <MenuGroup title="菜单">
                             <MenuItem name="3-1">个人中心</MenuItem>
                             <router-link to="/myblog"><MenuItem name="3-2">我的博客</MenuItem></router-link>
-                            <MenuItem name="3-3">博客管理</MenuItem>
+                            <router-link to="/Manageblog"><MenuItem name="3-3">博客管理</MenuItem></router-link>
                             <Divider style="margin: 4px 0;"/>
                             <MenuItem name="3-4"><span @click="unlogin" title="退出登录">注销登录</span></MenuItem>
                         </MenuGroup>
@@ -47,11 +47,9 @@
                 </div>
             </Menu>
         </Header>
-
-        <router-view></router-view>
-
-        <Footer class="layout-footer-center">2019-02 &copy; Built with vue and node.Theme designed by XC.</Footer>
+        <!-- <Footer class="layout-footer-center">2019-02 &copy; Built with vue and node.Theme designed by XC.</Footer> -->
     </Layout>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -154,12 +152,15 @@ export default {
   .layout-footer-center{
       text-align: center;
       background-color: #231f20;
+      padding-top: 10px;
+     padding-bottom: 10px;
   }
   .ivu-layout-footer {
     color: #a3b4d9;
   }
   .ivu-layout-header {
     background-color: #231f20;
+    box-shadow: 0.5px 0.5px 18px 0px #fff;
   }
   .ivu-menu-dark {
     background-color: #231f20;

@@ -6,6 +6,7 @@ import Login from '@/components/Login'
 import Register from '@/components/Register'
 import Newnote from '@/components/Newnote'
 import Myblog from '@/components/menu/Myblog' //我的博客
+import Articledetails from '@/components/subcomponents/Articledetails' //文章详情页
 
 Vue.use(Router)
 
@@ -16,8 +17,9 @@ export default new Router({
     {path: '/Login',component: Login},
     {path: '/Home',component: Home}, 
     {path: '/Register',component: Register},
-    {path: '/Newnote',component: Newnote,meta:{requireAuth:true}},
-    {path: '/Myblog',component: Myblog,meta:{requireAuth:true}}
+    {path: '/Newnote/:id',component: Newnote,meta:{requireAuth:true}},
+    {path: '/Myblog',component: Myblog,meta:{requireAuth:true}},
+    {path: '/Articledetails/:id',component: Articledetails,meta:{requireAuth:true}}  //文章详情路由接收文章id参数
   ],
   linkActiveClass:'ivu-menu-item-active'
 })

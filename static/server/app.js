@@ -27,6 +27,8 @@ app.get("/doregister",controller.doRegister); //注册业务
 app.get("/dologin",controller.doLogin);  //登录业务
 app.get("/dopublisharticle",controller.doPublishArticle);  //发布文章业务
 app.get("/dofindarticles",controller.doFindArticles);  //查询用户的文章
+app.get("/dodeletearticle",controller.doDeleteArticle);  //查询用户的文章
+app.get("/dofindarticle",controller.doFindArticle);  //查询一篇文章
 	
 //以下为node程序异常捕获，如果不捕获，那么遇到异常node就会终止程序
 process.on('uncaughtException', function (err) {    

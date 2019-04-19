@@ -11,7 +11,7 @@ import 'mavon-editor/dist/css/index.css'
 
 Vue.use(iview) //注册iview框架
 Vue.use(store);
-Vue.use(mavonEditor);
+Vue.use(mavonEditor);  //注册markdown编辑器
 Vue.prototype.$axios = axios; //将axios写入vue的原型，这样就能更简单的使用,就可以直接 this.$axios 来使用。
 axios.defaults.withCredentials=true;  //跨域保存session有用
 axios.defaults.baseURL = "http://localhost:3030"; //设置跨域访问，打包的时候直接删掉，默认基础路径在这里配置
