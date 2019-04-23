@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <a name="backtop" href="javascript:void()"></a>
     <div class="container">
       <h1 class="title-blog">{{this.$store.state.username}} 的博客</h1>
 <!----------------------------------------------------------------------------------------->
@@ -64,13 +65,16 @@
                 <!--文章操作按钮-->
                   <div class="article-option" >
                     <div>
-                    <Button type="warning" size="small" ghost><router-link :to="'/Newnote/' + item._id">编辑</router-link></Button>
+                    <Button type="warning" size="small" ghost><router-link :to="'/Newnote/' + item._id" tag="span">编辑</router-link></Button>
                     <Button type="error" size="small" ghost @click="delete_article(item._id)">删除</Button>
                     </div>
                   </div>
             </li>
           </ul>
         </div>
+        <br/>
+        <Button type="error" long @click="showmore" style="margin-bottom:20px">查看更多</Button>
+        <a href="#backtop" id="backtopbtn" title="返回顶部"><Icon type="md-arrow-round-up" /></a>
       </div>
     </div>
   </div>
@@ -82,7 +86,8 @@ export default {
   data(){
     return{
       article:[],  //文章数组
-      single:false  //只看原创选择框
+      single:false,  //只看原创选择框
+      pageamount:'6' //文章显示条数
     }
   },
   created(){
@@ -93,7 +98,8 @@ export default {
       //发起ajax读取数据库中当前用户的文章
       this.$axios.get("/dofindarticles",{
         params:{
-          'author': this.$store.state.username
+          'author': this.$store.state.username,
+          'pageamount':this.pageamount
           }
         }).then(result =>{
           if(result.data.err1){
@@ -130,6 +136,10 @@ export default {
     ToText(HTML){  //这个方法的功能是将html格式转换为纯文本
       var input = HTML;
       return input.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi,'').replace(/<[^>]+?>/g,'').replace(/\s+/g,' ').replace(/ /g,' ').replace(/>/g,' ');  
+    },
+    showmore(){
+      this.pageamount = this.pageamount+6;
+      this.findArticles();
     }
   }
 }
@@ -219,7 +229,7 @@ export default {
   list-style: none;
   background-color: #fff;
   border-top: 1px solid black;
-  padding: 12px 24px 12px 24px;
+  padding: 12px 24px 14px 24px;
   font-family: "微软雅黑";
 }
 .right-box .articl-list li:hover{
@@ -297,5 +307,20 @@ export default {
   border-radius: 50%;
   position: relative;
   top: -1px;
+}
+::-webkit-scrollbar {  /*隐藏滚动条*/
+     width: 0 !important;
+}
+#backtopbtn{
+  font-size: 20px;
+  color: #fff;
+  position: absolute;
+  right: 30px;
+  bottom:30px;
+  width: 45px;
+  height: 45px;
+  background-color: #000;
+  text-align: center;
+  line-height: 45px;
 }
 </style>

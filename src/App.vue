@@ -38,8 +38,8 @@
                       </template>
                         <MenuGroup title="菜单">
                             <MenuItem name="3-1">个人中心</MenuItem>
-                            <router-link to="/myblog"><MenuItem name="3-2">我的博客</MenuItem></router-link>
-                            <router-link to="/Manageblog"><MenuItem name="3-3">博客管理</MenuItem></router-link>
+                            <MenuItem name="3-2"><router-link to="/myblog" style="color:#515a6e">我的博客</router-link></MenuItem>
+                            <MenuItem name="3-3"><router-link to="/Manageblog" style="color:#515a6e">博客管理</router-link></MenuItem>
                             <Divider style="margin: 4px 0;"/>
                             <MenuItem name="3-4"><span @click="unlogin" title="退出登录">注销登录</span></MenuItem>
                         </MenuGroup>

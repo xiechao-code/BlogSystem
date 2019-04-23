@@ -118,8 +118,10 @@ exports.doPublishArticle = function(req,res){
 //查询某个用户所有文章业务实现
 exports.doFindArticles = function(req,res){
   var author = req.query.author;
+  var pageamount = req.query.pageamount;
   
-  db.find("blogsystem","articles",{"author":author},function(err,result){
+  //默认显示5条文章，以时间倒序排序
+  db.find("blogsystem","articles",{"author":author},{"pageamount":pageamount,"sort":{"publishtime":-1}},function(err,result){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;
@@ -149,6 +151,36 @@ exports.doDeleteArticle = function(req,res){
 
 
 
+//修改一篇文章业务实现
+exports.doUpdateArticle = function(req,res){
+  var article_id = req.query.id;
+  var title = req.query.title;
+  var value = req.query.value;
+  var author = req.query.author;
+  var input = req.query.input;
+  var ttt = sd.format(new Date(),'YYYY/MM/DD HH:mm:ss');
+  
+  db.updateMany("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},{$set:{
+    "title":title,
+    "value":value,
+    "input":input,
+    "author":author,
+    "publishtime":ttt,
+    "count_read":'0',
+    "count_comment":'0'
+  }},function(err,result){
+    if(err){
+        res.send('-1'); //服务器错误
+        return;
+    }
+    res.send('1'); 
+  })
+}
+
+
+
+
+
 //查询一篇文章业务实现
 exports.doFindArticle = function(req,res){
   var article_id = req.query.id;
@@ -158,6 +190,16 @@ exports.doFindArticle = function(req,res){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;
     }
+    result[0].count_read++;  //阅读数加一
+    db.updateMany("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},{$set:{
+      "count_read":result[0].count_read
+    }},function(err,result){
+      if(err){
+          res.send('-1'); //服务器错误
+          return;
+      }
+    })
     res.send(result); 
   })
+
 }

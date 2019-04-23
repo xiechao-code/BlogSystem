@@ -162,7 +162,7 @@ export default {
 <style>
   #app{
     width: 100%;
-    height: 599px;
+    height: 669px;
     background-image: url("../assets/images/bg-01.jpg");
     background-position-y: -1px;
     background-size: cover;

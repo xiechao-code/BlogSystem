@@ -43,6 +43,7 @@ export default{
 #app{
   background-image: url(../../assets/images/bg-02.jpg);
   background-attachment: fixed;  /* 设置背景图片固定，不随页面滚动 */
+  height:668px;
 }
 .container{
   width: 1200px;
