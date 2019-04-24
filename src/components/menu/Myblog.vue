@@ -13,7 +13,7 @@
         <div class="box2">
           <dl>
             <dt>原创</dt>
-            <dd>2</dd>
+            <dd>{{original_count}}</dd>
           </dl>
           <dl>
             <dt>粉丝</dt>
@@ -30,8 +30,13 @@
         </div>
         <div class="box3">
           <Card :bordered="false">
-            <p slot="title">归档</p>
-            <p>2019年4月</p>
+            <p slot="title">热门文章</p>
+            <p class="hot_article" v-for="item in article" v-bind:key="item._id">
+                <router-link :to="'/Articledetails/' + item._id">
+                  {{item.title}}
+                </router-link><br>
+                <span>阅读数：{{item.count_read}}</span>
+            </p>
           </Card>
         </div>
       </div>      
@@ -40,14 +45,14 @@
         <div>
           <ul class="articl-list">
             <li class="top-li">
-              <Checkbox v-model="single"> 只看原创</Checkbox>
+              <span @click="showOriginal"><Checkbox v-model="single"> 只看原创</Checkbox></span>
               <router-link to="/Manageblog"><Button icon="md-settings" size="small">管理博客</Button></router-link>
             </li>
             <li v-for="item in article" v-bind:key="item._id"> <!-- key必须且值唯一 -->
                 <!-- 文章标题 -->
                   <h2>
                     <router-link :to="'/Articledetails/' + item._id">
-                      <span class="article-type">原</span>&nbsp;{{item.title}}
+                      <span class="article-type">{{item.article_type}}</span>&nbsp;{{item.title}}
                     </router-link>
                   </h2>
                 <!--文章内容-->
@@ -71,9 +76,10 @@
                   </div>
             </li>
           </ul>
+          <div class="null" v-show="flag">这家伙很懒，什么都没写~~~</div>
         </div>
         <br/>
-        <Button type="error" long @click="showmore" style="margin-bottom:20px">查看更多</Button>
+        <Button type="error" long @click="showmore" v-show="!flag" style="margin-bottom:20px">查看更多</Button>
         <a href="#backtop" id="backtopbtn" title="返回顶部"><Icon type="md-arrow-round-up" /></a>
       </div>
     </div>
@@ -86,12 +92,16 @@ export default {
   data(){
     return{
       article:[],  //文章数组
+      article2:[],  //原创文章数组
       single:false,  //只看原创选择框
-      pageamount:'6' //文章显示条数
+      pageamount:'6', //文章显示条数,初始6条
+      original_count:'0', //原创数
+      flag:false
     }
   },
   created(){
-    this.findArticles();  //查询所有文章
+    this.findArticles();  //查询此用户所有文章
+    this.findOriginal();
   },
   methods:{
     findArticles(){
@@ -106,8 +116,32 @@ export default {
             this.$Message.error('内部服务器错误！');
           }else{
             this.article = result.data;
+            if(this.article==''){this.flag = !this.flag}
           }
         })
+    },
+    findOriginal(){  //查询原创文章
+      this.$axios.get("/doshoworiginal",{
+        params:{
+          'author': this.$store.state.username,
+          'pageamount':'50'
+          }
+        }).then(result =>{
+          if(result.data.err1){
+            this.$Message.error('内部服务器错误！');
+          }else{
+            this.article2 = result.data;
+            this.original_count = this.article2.length;
+          }
+        })
+    },
+    showOriginal(){  //只显示原创
+      this.single = !this.single;
+      if(this.single==true){
+        this.article = this.article2;
+      }else{
+        this.findArticles();
+      }  
     },
     delete_article(id){ //删除文章
       this.$Modal.confirm({  //iview对话框
@@ -212,6 +246,17 @@ export default {
   margin-top: 40px;
   background-color: white;
 }
+.left-box .box3 .hot_article{
+  margin-bottom: 8px;
+  line-height: 18px;
+}
+.left-box .box3 .hot_article a{
+  color: #ffa200;
+}
+.left-box .box3 .hot_article span{
+  font-size: 12px;
+  color: #8c8c8c;;
+}
 .ivu-card-head {  /*卡片头样式*/
   border-bottom: 1px solid #e8eaec;
   padding: 12px 16px;
@@ -298,15 +343,11 @@ export default {
 .right-box .articl-list li .article-type{  /*原创小徽标*/
   color: #ca0c16;
   border: 1px solid #f4ced0;
-  display: inline-block;
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
-  text-align: center;
   font-size: 12px;
-  border-radius: 50%;
+  border-radius: 15%;
   position: relative;
-  top: -1px;
+  top: -2px;
+  padding: 1px;
 }
 ::-webkit-scrollbar {  /*隐藏滚动条*/
      width: 0 !important;
@@ -322,5 +363,16 @@ export default {
   background-color: #000;
   text-align: center;
   line-height: 45px;
+}
+.null{
+  height: 400px;
+  background-color: #fff;
+  margin-top: 1px;
+  text-align: center;
+  line-height: 400px;
+  font-size: 30px;
+  color: #ff5e00;
+  font-family: "微软雅黑";
+  font-weight: bold;
 }
 </style>

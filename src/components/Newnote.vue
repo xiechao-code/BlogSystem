@@ -7,6 +7,35 @@
     <!-- save为markdown的内置方法之一，即点击保存按钮后的回调事件,它有两个参数value和render，render为HTML格式 -->
     <!-- change为编辑区发生改变时出发的方法 -->
     <mavon-editor v-model="value" @save='saveData' @change="toHtml"/>
+    <Drawer title="发布文章" :closable="true"  v-model="value1">
+      <Form :model="formItem" :label-width="60">
+        <FormItem label="文章类型">
+          <Select v-model="formItem.select">
+            <Option value="原创">原创</Option>
+            <Option value="转载">转载</Option>
+            <Option value="翻译">翻译</Option>
+          </Select>
+        </FormItem>
+        <FormItem label="博客类型">
+          <Select v-model="formItem.select2">
+            <Option value="前端">前端</Option>
+            <Option value="后端">后端</Option>
+            <Option value="数据库">数据库</Option>
+            <Option value="程序人生">程序人生</Option>
+            <Option value="区块链">区块链</Option>
+            <Option value="人工智能">人工智能</Option>
+            <Option value="云计算/大数据">云计算/大数据</Option>
+            <Option value="物联网">物联网</Option>
+            <Option value="游戏开发">游戏开发</Option>
+            <Option value="移动开发">移动开发</Option>
+            <Option value="其他">其他</Option>
+          </Select>
+        </FormItem>
+        <FormItem>
+            <Button type="primary" @click="confirmPublish">确认发布</Button>
+        </FormItem>
+      </Form>
+    </Drawer>
   </div>
 </template>
 
@@ -20,12 +49,17 @@ export default {
       input:'',   //input的值是value转换成HTML格式的值
       id:this.$route.params.id, //如果是点击的编辑按钮跳转过来那么就会带有文章id参数
       flag:true,  //控制显示发布文章按钮还是保存修改按钮
-      flag2:true  //用于控制是否关闭路由拦截
+      flag2:true,  //用于控制是否关闭路由拦截
+      value1: false ,  //用于控制iview抽屉的显示
+      formItem:{  //表单控件绑定的
+        select:'',
+        select2:''
+      } 
     }
   },
   beforeRouteLeave: function(to, from , next){  //设置路由拦截，当点击导航跳转时，先提示用户不会保存数据
         next(false)
-        if(this.flag2){  //flag2为true时，代表是点击的发布文章按钮进行的跳转，所以不需要拦截
+        if(this.flag2){  //flag2为false时，代表是点击的发布文章按钮进行的跳转，所以不需要拦截
           this.$Modal.confirm({  //iview对话框
                             title: "系统提示",
                             content: "系统可能不会保留您的更改！",
@@ -72,13 +106,24 @@ export default {
       }else if(this.value==''){
         this.$Message.warning('文章内容不能为空哦！');
       }else{
+        this.value1 = true;  //显示iview抽屉
+      }
+    },
+    confirmPublish(){  //确认发布
+      if(this.formItem.select == ''){
+        this.$Message.warning('您还没有输入文章类型哦！');
+      }else if(this.formItem.select2 == ''){
+        this.$Message.warning('您还没有输入博客类型哦！');
+      }else{
         //发起ajax将文章标题和内容传递给后台
         this.$axios.get("/dopublisharticle",{
           params:{
             'title':this.title,
             'input':this.input,  //html格式
             'value':this.value,  //md格式
-            'author': this.$store.state.username
+            'author': this.$store.state.username,
+            'article_type':this.formItem.select,
+            'blog_type':this.formItem.select2
           }
         }).then(result =>{
           if(result.data.err1){
@@ -142,6 +187,7 @@ export default {
           }
           if(result.data === 1){
               this.$Message.success('文章修改成功，2s后跳转到个人主页！');
+              this.flag2 = !this.flag2;  //不显示弹出框直接跳转路由
               var r = this.$router;
               //设置定时器，2s后跳转到我的博客,否则因为异步会先跳过去
                     function Redirect() {
@@ -164,5 +210,8 @@ export default {
 .v-note-wrapper{
   min-height: 650px;
   z-index: 500;
+}
+.ivu-select{
+  width: 90%;
 }
 </style>

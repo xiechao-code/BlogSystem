@@ -92,7 +92,8 @@ exports.doPublishArticle = function(req,res){
   var author = req.query.author;
   var input = req.query.input;
   var ttt = sd.format(new Date(),'YYYY/MM/DD HH:mm:ss');
-  // var article_type = req.query.article_type;
+  var article_type = req.query.article_type;
+  var blog_type = req.query.blog_type;
 
   db.insertOne("blogsystem","articles",{
     "title":title,
@@ -101,7 +102,9 @@ exports.doPublishArticle = function(req,res){
     "author":author,
     "publishtime":ttt,
     "count_read":'0',
-    "count_comment":'0'
+    "count_comment":'0',
+    "article_type" :article_type,
+    "blog_type":blog_type
   },function(err,result){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
@@ -115,6 +118,22 @@ exports.doPublishArticle = function(req,res){
 
 
 
+//查询全部所有文章业务实现
+exports.doFindAllArticles = function(req,res){
+  
+  db.find("blogsystem","articles",{},{"sort":{"publishtime":-1}},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    res.send(result); 
+  })
+}
+
+
+
+
+
 //查询某个用户所有文章业务实现
 exports.doFindArticles = function(req,res){
   var author = req.query.author;
@@ -122,6 +141,23 @@ exports.doFindArticles = function(req,res){
   
   //默认显示5条文章，以时间倒序排序
   db.find("blogsystem","articles",{"author":author},{"pageamount":pageamount,"sort":{"publishtime":-1}},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    res.send(result); //结果是一个数组对象[ { _id: 5cb5aa2bfdc24d20c4802a42,title: '测试1',value: '# 标题\n内容',author: '张松' } ]
+  })
+}
+
+
+
+
+//查询某个用户所有原创文章业务实现
+exports.doShowOriginal = function(req,res){
+  var author = req.query.author;
+  var pageamount = req.query.pageamount;
+  
+  db.find("blogsystem","articles",{"author":author,"article_type":'原创'},{"pageamount":pageamount,"sort":{"publishtime":-1}},function(err,result){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;

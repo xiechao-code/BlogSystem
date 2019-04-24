@@ -27,9 +27,11 @@ app.get("/doregister",controller.doRegister); //注册业务
 app.get("/dologin",controller.doLogin);  //登录业务
 app.get("/dopublisharticle",controller.doPublishArticle);  //发布文章业务
 app.get("/dofindarticles",controller.doFindArticles);  //查询用户的文章
-app.get("/dodeletearticle",controller.doDeleteArticle);  //查询用户的文章
+app.get("/dodeletearticle",controller.doDeleteArticle);  //删除用户的文章
 app.get("/dofindarticle",controller.doFindArticle);  //查询一篇文章
 app.get("/doupdatearticle",controller.doUpdateArticle);  //修改一篇文章
+app.get("/doshoworiginal",controller.doShowOriginal);  //只看原创
+app.get("/dofindallarticles",controller.doFindAllArticles);  //查询所有文章
   
 
 

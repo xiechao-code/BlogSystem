@@ -19,7 +19,7 @@ export default new Router({
     {path: '/Register',component: Register},
     {path: '/Newnote/:id',component: Newnote,meta:{requireAuth:true}},
     {path: '/Myblog',component: Myblog,meta:{requireAuth:true}},
-    {path: '/Articledetails/:id',component: Articledetails,meta:{requireAuth:true}}  //文章详情路由接收文章id参数
+    {path: '/Articledetails/:id',component: Articledetails}  //文章详情路由接收文章id参数
   ],
   linkActiveClass:'ivu-menu-item-active'
 })

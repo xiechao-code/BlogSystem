@@ -1,7 +1,14 @@
 <template>
   <div id="app">
     <div class="container">
-      <div class="article_content" v-html="article"></div>
+      <div class="article_content">
+        <div class="head">
+          <h2><span class="article-type">{{article_type}}</span>{{title}}</h2>
+          <span>{{time}}</span><span>作者:{{author}}</span><span>阅读数:{{count_read}}</span><span>分类:{{blog_type}}</span>
+        </div>
+        <hr style="margin: 15px 0;">
+        <div v-html="input"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -12,8 +19,14 @@
 export default{
   data(){
     return{
-      article:[],
-      id:this.$route.params.id  //将url地址中传递过来的id值，挂载到data上，方便以后调用
+      input:[],
+      id:this.$route.params.id,  //将url地址中传递过来的id值，挂载到data上，方便以后调用
+      title:'',
+      author:'',
+      time:'',
+      count_read:'',
+      article_type:'',
+      blog_type:''
     }
   },
   created(){
@@ -29,7 +42,13 @@ export default{
           if(result.data.err1){
             this.$Message.error('内部服务器错误！');
           }else{
-            this.article = result.data[0].input;
+            this.input = result.data[0].input;
+            this.title = result.data[0].title;
+            this.time = result.data[0].publishtime;
+            this.author = result.data[0].author;
+            this.count_read = result.data[0].count_read;
+            this.article_type = result.data[0].article_type;
+            this.blog_type = result.data[0].blog_type;
           }
         })
     }
@@ -46,14 +65,13 @@ export default{
   height:668px;
 }
 .container{
-  width: 1200px;
+  width: 60%;
   margin: 0 auto;
   margin-top: 20px;
 }
 .article_content{
-  width: 75%;
+  width: 100%;
   padding: 20px;
-  float: right;
   background-color: #fff;
 }
 .article_content p{
@@ -95,5 +113,28 @@ export default{
   border: 0.5px solid #d4d4d4;
   margin: 10px 0;
 }
-    
+.head{
+  width: 100%;
+  background-color: #2d272b;
+  height: 100px;
+  padding: 10px;
+  border-radius: 5px;
+}
+.head h2{
+  color:#eaeaea;
+}
+.head span{
+  font-size: 15px;
+  margin-right:20px;
+  color:#c1c1c1;
+}  
+.head .article-type{
+  color: #ca0c16;
+  border: 1px solid #eaeaea;
+  font-size: 12px;
+  border-radius: 15%;
+  position: relative;
+  top: -2px;
+  padding: 1px;
+} 
 </style>
