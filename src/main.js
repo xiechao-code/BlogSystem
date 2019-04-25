@@ -7,6 +7,8 @@ import store from './store/store.js'  //store状态管理对象
 import 'iview/dist/styles/iview.css' //导入iview框架样式
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
+import hljs from 'highlight.js' //导入代码高亮文件
+import 'highlight.js/styles/monokai-sublime.css'  //导入代码高亮样式
 
 
 Vue.use(iview) //注册iview框架
@@ -36,6 +38,15 @@ router.beforeEach((to, from, next) => {
    next();
    }
   });
+
+
+//自定义一个代码高亮指令
+Vue.directive('highlight',function (el) {
+  let highlight = el.querySelectorAll('pre code');
+  highlight.forEach((block)=>{
+      hljs.highlightBlock(block)
+  })
+})
 
 
 

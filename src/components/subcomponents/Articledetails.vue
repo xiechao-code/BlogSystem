@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="container">
-      <div class="article_content">
+      <div class="article_content" v-highlight>
         <div class="head">
           <h2><span class="article-type">{{article_type}}</span>{{title}}</h2>
           <span>{{time}}</span><span>作者:{{author}}</span><span>阅读数:{{count_read}}</span><span>分类:{{blog_type}}</span>
@@ -9,6 +9,9 @@
         <hr style="margin: 15px 0;">
         <div v-html="input"></div>
       </div>
+      <!-- 评论组件 -->
+      <!-- 将文章id传给评论子组件 -->
+      <comment v-show="this.$store.state.islogin" :id="this.id"></comment>
     </div>
   </div>
 </template>
@@ -16,6 +19,9 @@
 
 
 <script>
+// 导入评论子组件
+import comment from './comment.vue';
+
 export default{
   data(){
     return{
@@ -52,6 +58,9 @@ export default{
           }
         })
     }
+  },
+  components:{  //注册子组件
+    'comment':comment
   }
 }
 </script>
@@ -112,6 +121,12 @@ export default{
 .article_content hr{
   border: 0.5px solid #d4d4d4;
   margin: 10px 0;
+}
+.article_content li{
+  font-size: 16px;
+}
+.article_content pre{
+  font-size: 1.2em;
 }
 .head{
   width: 100%;

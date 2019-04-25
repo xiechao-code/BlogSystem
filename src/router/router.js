@@ -21,6 +21,6 @@ export default new Router({
     {path: '/Myblog',component: Myblog,meta:{requireAuth:true}},
     {path: '/Articledetails/:id',component: Articledetails}  //文章详情路由接收文章id参数
   ],
-  linkActiveClass:'ivu-menu-item-active'
+  // linkActiveClass:'ivu-menu-item-active'
 })
 

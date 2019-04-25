@@ -36,7 +36,7 @@
                       <template slot="title">
                         MENU
                       </template>
-                        <MenuGroup title="菜单">
+                        <MenuGroup title="菜单" class="MenuGroup">
                             <MenuItem name="3-1">个人中心</MenuItem>
                             <MenuItem name="3-2"><router-link to="/myblog" style="color:#515a6e">我的博客</router-link></MenuItem>
                             <MenuItem name="3-3"><router-link to="/Manageblog" style="color:#515a6e">博客管理</router-link></MenuItem>
@@ -101,7 +101,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
   .layout{
       /* border: 1px solid #d7dde4; */
       background: #f5f7f9;
@@ -144,10 +144,10 @@ export default {
     margin-right: -154px;
   }
   .layout-nav{
-      width:385px;
-      height: 100%;
-      margin: 0 auto;
-      margin-right: 75px;
+    width: 410px;
+    height: 100%;
+    margin: 0 auto;
+    margin-right: 55px;
   }
   .layout-footer-center{
       text-align: center;
@@ -160,15 +160,33 @@ export default {
   }
   .ivu-layout-header {
     background-color: #231f20;
-    box-shadow: 0.5px 0.5px 18px 0px #fff;
+    box-shadow: 0.5px 0.5px 18px 0px #000;
   }
   .ivu-menu-dark {
     background-color: #231f20;
   }
+  .ivu-menu-item{
+    width:100px;
+    text-align: center;
+  }
+  .ivu-menu-item:hover{
+    border-bottom: 4px solid #ff8100;
+  }
   a{
     color: #ccd1d6ab;
+    height: 60px;
+    display: inline-block;
   }
-  .roll {
+  a:hover{
+    color: #fff;
+  }
+  .router-link-active{
+    color: #fff;
+  }
+  .ivu-menu-item-active{
+    border-bottom: 4px solid #ff8100;
+  }
+  .roll { /*跑马灯字体*/
     margin-left: 130px;
     float: left;
     font-size: 16px;
@@ -179,5 +197,9 @@ export default {
     background-repeat:no-repeat;
     background-position: center;
     background-size: 100%;  
+  }
+  .ivu-menu-horizontal .ivu-menu-submenu .ivu-select-dropdown .ivu-menu-item{
+    height: 40px;
+    width: 107px;
   }
 </style>

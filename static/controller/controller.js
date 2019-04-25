@@ -101,8 +101,8 @@ exports.doPublishArticle = function(req,res){
     "input":input,
     "author":author,
     "publishtime":ttt,
-    "count_read":'0',
-    "count_comment":'0',
+    "count_read":0,
+    "count_comment":0,
     "article_type" :article_type,
     "blog_type":blog_type
   },function(err,result){
@@ -118,10 +118,10 @@ exports.doPublishArticle = function(req,res){
 
 
 
-//查询全部所有文章业务实现
+//查询全部所有用户文章业务实现,只查询最新的15条文章显示
 exports.doFindAllArticles = function(req,res){
   
-  db.find("blogsystem","articles",{},{"sort":{"publishtime":-1}},function(err,result){
+  db.find("blogsystem","articles",{},{"pageamount":15,"sort":{"publishtime":-1}},function(err,result){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;
@@ -134,19 +134,30 @@ exports.doFindAllArticles = function(req,res){
 
 
 
-//查询某个用户所有文章业务实现
+//查询某个用户的所有文章业务实现
 exports.doFindArticles = function(req,res){
   var author = req.query.author;
   var pageamount = req.query.pageamount;
-  
-  //默认显示5条文章，以时间倒序排序
-  db.find("blogsystem","articles",{"author":author},{"pageamount":pageamount,"sort":{"publishtime":-1}},function(err,result){
-    if(err){
-        res.send('{"err1":"服务器错误"}'); //服务器错误
-        return;
-    }
-    res.send(result); //结果是一个数组对象[ { _id: 5cb5aa2bfdc24d20c4802a42,title: '测试1',value: '# 标题\n内容',author: '张松' } ]
-  })
+  var sorttype = req.query.sorttype;
+
+  if(sorttype == 'publishtime'){
+      //默认显示5条文章，以时间倒序排序
+    db.find("blogsystem","articles",{"author":author},{"pageamount":pageamount,"sort":{"publishtime":-1}},function(err,result){
+      if(err){
+          res.send('{"err1":"服务器错误"}'); //服务器错误
+          return;
+      }
+      res.send(result); //结果是一个数组对象[ { _id: 5cb5aa2bfdc24d20c4802a42,title: '测试1',value: '# 标题\n内容',author: '张松' } ]
+    })
+  }else if(sorttype == 'count_read'){  //按照访问量排序
+    db.find("blogsystem","articles",{"author":author},{"pageamount":pageamount,"sort":{"count_read":-1}},function(err,result){
+      if(err){
+          res.send('{"err1":"服务器错误"}'); //服务器错误
+          return;
+      }
+      res.send(result); 
+    })
+  } 
 }
 
 
@@ -238,4 +249,45 @@ exports.doFindArticle = function(req,res){
     res.send(result); 
   })
 
+}
+
+
+
+
+
+//发布评论业务实现
+exports.doPublishComment = function(req,res){
+  var article_id = req.query.article_id;
+  var content = req.query.content;
+  var author = req.query.author;
+  var ttt = sd.format(new Date(),'YYYY/MM/DD HH:mm:ss');
+
+  db.insertOne("blogsystem","comments",{
+    "content":content,
+    "author":author,
+    "publishtime":ttt,
+    "article_id":article_id //并非数据库自动创建的id，而是被评论文章的id
+  },function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    res.send('{"success":"true"}'); 
+  });
+}
+
+
+
+
+
+//查询一篇文章的所有评论业务实现
+exports.doFindComments = function(req,res){
+  var article_id = req.query.article_id;
+  db.find("blogsystem","comments",{"article_id":article_id},{"sort":{"publishtime":-1}},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    res.send(result); 
+  })
 }

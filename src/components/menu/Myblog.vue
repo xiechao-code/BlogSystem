@@ -37,7 +37,35 @@
                 </router-link><br>
                 <span>阅读数：{{item.count_read}}</span>
             </p>
+            <div class="" v-show="flag">这家伙很懒，什么都没写~~~</div>
           </Card>
+        </div>
+        <!-- 二维码 -->
+        <div class="box4">
+          <div class="QR-code">
+            <div class="QR-code1">
+              <a href="http://www.github.com/xiechao-code" target="_blank">
+                <img src="../../assets/images/Github.png">
+              </a>
+              <p>Github</p>
+            </div>
+            <div class="QR-code2">
+              <a href="http://www.gitee.com/xiechao_code" target="_blank">
+                <img src="../../assets/images/Gitee.png">
+              </a>
+              <p>Gitee</p>
+            </div> 
+          </div>
+          <div class="box-info">
+            <p>
+              <a href="http://www.cyberpolice.cn/" target="_blank">网路110报警服务</a><br>
+              <a href="http://www.cdjubao.gov.cn/" target="_blank">成都互联网违法和不良信息举报中心</a><br>  
+            </p>
+            <p>
+              <a href="http://www.12377.cn/" target="_blank">中国互联网举报中心</a><br>
+              <a href="https://download.csdn.net/index.php/tutelage/" target="_blank">家长监护</a>
+            </p>
+          </div>
         </div>
       </div>      
 <!----------------------------------------------------------------------------------------->
@@ -46,7 +74,12 @@
           <ul class="articl-list">
             <li class="top-li">
               <span @click="showOriginal"><Checkbox v-model="single"> 只看原创</Checkbox></span>
-              <router-link to="/Manageblog"><Button icon="md-settings" size="small">管理博客</Button></router-link>
+              <div class="sort-type">
+                <span>排序:</span>
+                <a href="javascript:void(0);" class="one" @click="changeSortType('publishtime')">按更新时间 (默认)</a >
+                <a href="javascript:void(0);" class="two" @click="changeSortType('count_read')">按访问量</a >
+                <router-link to="/Manageblog"><Button icon="md-settings" size="small">管理博客</Button></router-link>
+              </div>
             </li>
             <li v-for="item in article" v-bind:key="item._id"> <!-- key必须且值唯一 -->
                 <!-- 文章标题 -->
@@ -61,7 +94,7 @@
                   </router-link> 
                 <!--文章属性-->  
                   <div class="article-attribute">
-                    <span style="color:#6b6b6b">{{item.publishtime}}</span>
+                    <span style="color:#6b6b6b">发布于:<Time :time="item.publishtime" :interval="1" /></span>
                     丨
                     <span>阅读数<span class="badge">{{item.count_read}}</span></span>
                     丨
@@ -96,7 +129,8 @@ export default {
       single:false,  //只看原创选择框
       pageamount:'6', //文章显示条数,初始6条
       original_count:'0', //原创数
-      flag:false
+      flag:false,  //用于控制“这家伙很懒，什么都没写~~~”div显示
+      sorttype:'publishtime'  //默认按照更新时间排序
     }
   },
   created(){
@@ -109,7 +143,8 @@ export default {
       this.$axios.get("/dofindarticles",{
         params:{
           'author': this.$store.state.username,
-          'pageamount':this.pageamount
+          'pageamount':this.pageamount,
+          'sorttype':this.sorttype
           }
         }).then(result =>{
           if(result.data.err1){
@@ -173,6 +208,10 @@ export default {
     },
     showmore(){
       this.pageamount = this.pageamount+6;
+      this.findArticles();
+    },
+    changeSortType(sorttype){  //改变排序方式
+      this.sorttype = sorttype;
       this.findArticles();
     }
   }
@@ -242,6 +281,7 @@ export default {
   font-weight: 600;
   color:#3d3d3d;
 }
+/* 左边第三个盒子 */
 .left-box .box3{
   margin-top: 40px;
   background-color: white;
@@ -264,6 +304,52 @@ export default {
   background-color: #f8f8f8;
 }
 
+/* 左边第四个盒子 */
+.left-box .box4{
+  margin-top: 10px;
+  background-color: white;
+  height: 300px;
+  padding: 25px;
+}
+.left-box .box4 .QR-code{
+  height: 120px;
+}
+.left-box .box4 .QR-code .QR-code1{
+  width: 100px;
+  height:100px;
+  float: left;
+  border: 1px solid #ccc;
+  padding: 2px;
+  text-align: center;
+  font-size: 16px;
+  color: #524949;
+}
+.left-box .box4 .QR-code .QR-code2{
+  width: 100px;
+  height:100px;
+  float: right;
+  border: 1px solid #ccc;
+  padding: 2px;
+  text-align: center;
+  font-size: 16px;
+  color: #524949;
+}
+.left-box .box4 .QR-code img{
+  width:100%;
+}
+.left-box .box4 .box-info{
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding: 10px 0;
+  line-height: 25px;
+}
+.left-box .box4 .box-info a{
+  color: #656565;
+  font-size: 14px;
+}
+.left-box .box4 .box-info a:hover{
+  color:#ffa200;
+}
 /* 右边文章列表部分 */
 .right-box{
   width: 890px;
@@ -339,6 +425,21 @@ export default {
   display: flex; /*弹性布局，垂直居中，两端对齐*/
   justify-content: space-between;
   align-items: center;
+}
+.sort-type {      /*排序按钮*/
+  font-size:14px;
+}
+.sort-type a{
+  margin-left: 30px;
+}
+.sort-type a:link{
+  color:#525252;
+}
+.sort-type a:hover{
+  color:#ffa202;
+}
+.sort-type a:visited{
+  color:#ffa202;
 }
 .right-box .articl-list li .article-type{  /*原创小徽标*/
   color: #ca0c16;

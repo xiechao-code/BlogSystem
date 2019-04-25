@@ -32,6 +32,9 @@ app.get("/dofindarticle",controller.doFindArticle);  //查询一篇文章
 app.get("/doupdatearticle",controller.doUpdateArticle);  //修改一篇文章
 app.get("/doshoworiginal",controller.doShowOriginal);  //只看原创
 app.get("/dofindallarticles",controller.doFindAllArticles);  //查询所有文章
+app.get("/dopublishcomment",controller.doPublishComment);  //发表评论
+app.get("/dofindcomments",controller.doFindComments);  //查询一篇文章的所有评论
+
   
 
 

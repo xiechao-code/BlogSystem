@@ -9,7 +9,7 @@
           <p slot="title" class="article_title"><router-link :to="'/Articledetails/' + item._id">{{item.title}}</router-link></p>
           <p class="article_content">摘要：{{ToText(item.input)}}</p>
           <p class="article_attr">
-            <span>作者：{{item.author}}丨发布时间：{{item.publishtime}}</span>
+            <span>作者：{{item.author}}丨发布时间：<Time :time="item.publishtime" :interval="1" /></span>
             <span style="float: right;color:#f9a35b;">阅读数：{{item.count_read}}丨评论数：{{item.count_comment}}</span>
           </p>    
       </li>
@@ -53,19 +53,26 @@ export default {
 <style scoped>
 .hello{
   background-image: url('../assets/images/bg-02.jpg');
+  padding-top: 20px;
 }
 ul{
   width: 900px;
   margin: 0 auto;
   list-style: none;
-  padding-top: 20px;
 }
 ul li{
   padding: 20px;
   border-left: 15px solid #fbd0ac;
-  margin-bottom: 5px;
-  background-color: #fafbf5;
+  background-color: #fff;
+  transition: all .2s linear;
+  border-bottom: 1px solid #e2e2e2;
+  cursor:pointer;
 } 
+ul li:hover{
+  transform: translate3d(-2px,0,0);
+  box-shadow: 0 15px 30px rgba(0,0,0,.1);
+  /* background-color: #edfbf6; */
+}
 .article_title a{
     color: #424242;
     font-size: 18px;
@@ -98,7 +105,7 @@ ul li{
 }
 .hello .head{
   margin: 0 auto;
-  background-image: url(/static/img/bg-03.1818987.jpg);
+  background-image: url(../assets/images/bg-03.jpg);
   height: 180px;
   background-position: center;
   background-repeat: no-repeat;
