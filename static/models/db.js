@@ -115,3 +115,20 @@ exports.updateMany = function(dbName,collectionName,json1,json2,callback){
 
     });
 };
+
+
+
+
+
+
+//得到集合中数据条数
+exports.getAllCount = function(dbName,collectionName,callback){
+    _connectDB(function(err,client){
+        var db = client.db(dbName);
+
+        db.collection(collectionName).countDocuments({}).then(function(count){
+            callback(count);
+            client.close();
+        });
+    });
+};

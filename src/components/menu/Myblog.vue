@@ -2,12 +2,12 @@
   <div id="app">
     <a name="backtop" href="javascript:void()"></a>
     <div class="container">
-      <h1 class="title-blog">{{this.$store.state.username}} 的博客</h1>
+      <h1 class="title-blog">{{username}} 的博客</h1>
 <!----------------------------------------------------------------------------------------->
       <div class="left-box">
         <div class="box1">
           <router-link to="/usercenter"><img class="avatar" src="../../assets/avatar/avatar01.jpg" alt="avatar" title="去往个人中心"></router-link>
-          <span>{{this.$store.state.username}}</span>
+          <span>{{username}}</span>
         </div>
         <divider />
         <div class="box2">
@@ -25,10 +25,10 @@
           </dl>
           <dl>
             <dt>评论</dt>
-            <dd>0</dd>
+            <dd>{{comment_count}}</dd>
           </dl>
         </div>
-        <div class="box3">
+        <div class="box3"  v-show="!flag">
           <Card :bordered="false">
             <p slot="title">热门文章</p>
             <p class="hot_article" v-for="item in article" v-bind:key="item._id">
@@ -71,7 +71,7 @@
 <!----------------------------------------------------------------------------------------->
       <div class="right-box">
         <div>
-          <ul class="articl-list">
+          <ul class="articl-list" >
             <li class="top-li">
               <span @click="showOriginal"><Checkbox v-model="single"> 只看原创</Checkbox></span>
               <div class="sort-type">
@@ -111,8 +111,7 @@
           </ul>
           <div class="null" v-show="flag">这家伙很懒，什么都没写~~~</div>
         </div>
-        <br/>
-        <Button type="error" long @click="showmore" v-show="!flag" style="margin-bottom:20px">查看更多</Button>
+        <Button type="error" long @click="showmore" class="more-btn">查看更多</Button>
         <a href="#backtop" id="backtopbtn" title="返回顶部"><Icon type="md-arrow-round-up" /></a>
       </div>
     </div>
@@ -130,15 +129,27 @@ export default {
       pageamount:'6', //文章显示条数,初始6条
       original_count:'0', //原创数
       flag:false,  //用于控制“这家伙很懒，什么都没写~~~”div显示
-      sorttype:'publishtime'  //默认按照更新时间排序
+      sorttype:'publishtime' , //默认按照更新时间排序
+      username:this.$store.state.username,
+      articlecount:'', //用户所有文章数量
+      comment_count:'0' //评论数
     }
   },
   created(){
     this.findArticles();  //查询此用户所有文章
-    this.findOriginal();
+    this.findOriginal();  //查询用户所有原创文章
+    this.getArticleCount();  //查询用户所有文章，不限制查询条数，主要用于得到文章条数
+    this.findArticleComment();
   },
   methods:{
     findArticles(){
+      this.$Message.config({  //设置iview警告框距离顶部的距离
+        top: 300
+      });
+      const msg = this.$Message.loading({
+                    content: '拼命加载中...',
+                    duration: 0
+                });
       //发起ajax读取数据库中当前用户的文章
       this.$axios.get("/dofindarticles",{
         params:{
@@ -150,8 +161,13 @@ export default {
           if(result.data.err1){
             this.$Message.error('内部服务器错误！');
           }else{
-            this.article = result.data;
-            if(this.article==''){this.flag = !this.flag}
+            setTimeout(msg,0); //后台数据返回，关闭加载中提示框
+            if(result.data.length!=0){
+              this.article = result.data;
+            }else if(result.data.length==0){
+              this.flag = true;
+              this.article = result.data;
+            }
           }
         })
     },
@@ -167,6 +183,19 @@ export default {
           }else{
             this.article2 = result.data;
             this.original_count = this.article2.length;
+          }
+        })
+    },
+    findArticleComment(){  //查询用户评论
+      this.$axios.get("/dofindarticlecomments",{
+        params:{
+          'author': this.$store.state.username,
+          }
+        }).then(result =>{
+          if(result.data.err1){
+            this.$Message.error('内部服务器错误！');
+          }else{
+            this.comment_count = result.data.length;
           }
         })
     },
@@ -192,7 +221,6 @@ export default {
               this.$Message.error('该服务器错误！');
             }
             if(result.data===1){
-              this.$Message.success('该文章已删除！');
               this.findArticles(); //再调用一次获取文章可以实现局部刷新
             }
           })
@@ -206,13 +234,34 @@ export default {
       var input = HTML;
       return input.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi,'').replace(/<[^>]+?>/g,'').replace(/\s+/g,' ').replace(/ /g,' ').replace(/>/g,' ');  
     },
-    showmore(){
+    showmore(){  //点击查看更多按钮
+      this.$Notice.config({
+        top:600
+      });
       this.pageamount = this.pageamount+6;
-      this.findArticles();
+      if(this.article.length == this.articlecount){  //如果当前已显示的文章条数等于总的条数
+        this.$Notice.info({
+          title: '告诉你，我是有底线的！',
+        });
+      }else{
+        this.findArticles();
+      } 
     },
     changeSortType(sorttype){  //改变排序方式
       this.sorttype = sorttype;
       this.findArticles();
+    },
+    getArticleCount(){  //得到文章条数
+      this.$axios.get("/getarticlecount",{
+            params:{
+              'author': this.$store.state.username
+            }
+          }).then(result =>{
+            if(result.data.err1){
+              this.$Message.error('该服务器错误！');
+            }
+            this.articlecount = result.data.length;
+      })
     }
   }
 }
@@ -285,6 +334,8 @@ export default {
 .left-box .box3{
   margin-top: 40px;
   background-color: white;
+  height: 332px;
+  overflow: hidden;
 }
 .left-box .box3 .hot_article{
   margin-bottom: 8px;
@@ -303,6 +354,7 @@ export default {
   line-height: 1;
   background-color: #f8f8f8;
 }
+
 
 /* 左边第四个盒子 */
 .left-box .box4{
@@ -465,7 +517,7 @@ export default {
   text-align: center;
   line-height: 45px;
 }
-.null{
+.null{  /*显示什么都没写的div*/
   height: 400px;
   background-color: #fff;
   margin-top: 1px;
@@ -475,5 +527,17 @@ export default {
   color: #ff5e00;
   font-family: "微软雅黑";
   font-weight: bold;
+}
+.more-btn{
+  margin-bottom: 25px;
+  color: #262626;
+  background-color: #ffffff;
+  border-color: #fefefe;
+  border-radius: 0;
+}
+.more-btn:hover{
+  text-decoration: none;
+  background-color: #ffb83d;
+  border-color: #ffb83d;
 }
 </style>

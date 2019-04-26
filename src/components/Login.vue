@@ -35,7 +35,7 @@ export default {
 
       if(this.username!=null && this.userpassword!=null){
         const msg = this.$Message.loading({  //iview警告框，显示加载中
-                    content: 'Logining...',
+                    content: '登录中...',
                     duration: 0
         });
 //如果用户名和密码都不为空就发起ajax将数据给后台判断是否正确
@@ -60,7 +60,7 @@ export default {
               sessionStorage.setItem("username",JSON.stringify(this.username));
               //调用 store 里的方法，将登录状态 true 传过去，result.data.success来自后台node返回的数据
               this.$store.commit('login',result.data.success);
-              this.$Message.success('登陆成功，页面在1秒后跳转...');
+              // this.$Message.success('登陆成功，页面在1秒后跳转...');
               var r = this.$router;
               //设置定时器，1s后跳转到我的博客
                     function Redirect() {

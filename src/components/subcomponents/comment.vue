@@ -1,8 +1,10 @@
 <template>
   <div class="cmt-container">
-    <Avatar src="https://i.loli.net/2017/08/21/599a521472424.jpg" />
-    <Input class="textarea" v-model="value" type="textarea" placeholder="想对作者说点什么..." />
-    <Button class="btn" type="error" @click="publishComment">发表评论</Button>
+    <div v-show="islogin">  <!---->
+      <Avatar src="https://i.loli.net/2017/08/21/599a521472424.jpg" />
+      <Input class="textarea" v-model="value" type="textarea" placeholder="想对作者说点什么..." />
+      <Button class="btn" type="error" @click="publishComment">发表评论</Button>
+    </div>
     <!-- 评论的内容 -->
     <div class="cmt-list">
       <div class="cmt-item" v-for="(item,i) in comments" v-bind:key="item._id" >
@@ -12,7 +14,7 @@
           {{item.content}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           <span class="time">(发布于：<Time :time="item.publishtime" :interval="1" />&nbsp;&nbsp;&nbsp;&nbsp;{{i+1}}楼)</span>  <!--iview时间戳-->
         </span>
-        <span class="icon"><Icon type="md-thumbs-up" /></span>
+        <span class="icon" @click="thumbsup(item._id)"><Icon @click="changeColor($event)" type="md-thumbs-up" /></span>
       </div>
     </div>
     <div class="info" v-show="flag">当前还没有人评论~~~</div>
@@ -21,11 +23,6 @@
 </template>
 
 <script>
-// import Vue from 'vue'
-// //注册一个过滤器，用于设置时间戳
-// Vue.filter('timeFormat',function(time){
-//   return time1 = time;
-// })
 
 export default {
   data(){
@@ -33,6 +30,8 @@ export default {
       value:'',  //输入的评论内容
       comments:[],
       flag:false,  //用于控制显示没有评论时的div
+      islogin:this.$store.state.islogin,
+      flag2:true
     }
   },
   created(){
@@ -59,23 +58,44 @@ export default {
       this.$Message.config({  //设置iview警告框距离顶部的距离
           top: 300
       });
-      this.$axios.get("/dopublishcomment",{
+      if(this.value!=''){
+        this.$axios.get("/dopublishcomment",{
         params:{
           'article_id':this.id,  //父组件传过来的被评论文章id
           'author':this.$store.state.username,
           'content':this.value
+          }
+        }).then(result=>{
+          if(result.data.err1){
+              this.$Message.error('内部服务器错误！');
+          }
+          if(result.data.success){
+              this.value = '';  //评论发布，清空输入框
+              this.$Message.success('评论发布成功！');
+              this.getComments();
+              this.flag = false;
+          }
+        })
+      }else{
+        this.$Notice.warning({
+            title: '评论内容不能为空！'
+        });
+      }  
+    },
+    thumbsup(commentid){  //评论点赞
+      this.$axios.get("/doaddthumbsup",{
+        params:{
+          'comment_id':commentid
         }
       }).then(result=>{
         if(result.data.err1){
-            this.$Message.error('内部服务器错误！');
-        }
-        if(result.data.success){
-            this.value = '';  //评论发布，清空输入框
-            this.$Message.success('评论发布成功！');
-            this.getComments();
-            this.flag = false;
+          this.$Message.error('内部服务器错误!');
         }
       })
+    },
+    changeColor(event){  //点赞改变小手的颜色
+      var el = event.currentTarget;  //vue中获取当前点击dom元素
+      el.style.color='rgb(189, 0, 0)';
     }
   },
   props:["id"] //从父组件Articledetails中传递过来的id,用this.id使用

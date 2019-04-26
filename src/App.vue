@@ -5,7 +5,7 @@
             <Menu mode="horizontal" theme="dark" active-name="1">
                 <div class="layout-logo"><img src="../static/icon/star-icon.jpg"><span>STAR博客</span></div>
                 <span class="roll">{{msg}}</span>
-                <div class="layout-nav" id="nologin_nav" v-if="!this.$store.state.islogin">
+                <div class="layout-nav" id="nologin_nav" v-if="!islogin">
                     <MenuItem name="1">
                         <router-link to="/home"><Icon type="ios-home"></Icon>
                         首页</router-link>
@@ -20,7 +20,7 @@
                     </MenuItem>
                 </div>
 
-                <div class="layout-nav" v-if="this.$store.state.islogin">
+                <div class="layout-nav" v-if="islogin">
                     <MenuItem name="1">
                         <router-link to="/home"><Icon type="ios-home"></Icon>
                         首页</router-link>
@@ -59,7 +59,8 @@ export default {
   data(){
     return{
       msg:'专业IT技术分享博客~~~   ',
-      intervalid:null  //在data上定义定时器id
+      intervalid:null , //在data上定义定时器id
+      islogin:this.$store.state.islogin
     };
   },
   created(){
@@ -83,6 +84,7 @@ export default {
     iflogin(){  //判断登录状态
       //刷新了页面导致vuex失效了，所以还需要重新判断一下
       this.$store.commit('login',JSON.parse(sessionStorage.getItem("islogin")));
+      this.islogin = this.$store.state.islogin;
     },
     unlogin(){  //注销登录，将登录状态为false传回store
       this.$Modal.confirm({  //iview对话框

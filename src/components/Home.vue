@@ -4,6 +4,7 @@
       <h2>STAR博客</h2>
       <p>一个专业的IT技术分享交流博客~~~</p>
     </div>
+    <div v-show="flag" style="height:680px"></div>
     <ul>
       <li  v-for="item in articles" v-bind:key="item._id">
           <p slot="title" class="article_title"><router-link :to="'/Articledetails/' + item._id">{{item.title}}</router-link></p>
@@ -21,7 +22,8 @@
 export default {
   data(){
     return{
-      articles:[]
+      articles:[],
+      flag:true
     }
   },
   created(){
@@ -29,6 +31,14 @@ export default {
   },
   methods:{
     findAllArticles(){
+      this.$Message.config({  //设置iview警告框距离顶部的距离
+        top: 300
+      });
+      const msg = this.$Message.loading({
+                    content: '拼命加载中...',
+                    duration: 0
+                });
+
       this.$axios.get("/dofindallarticles",{
         params:{
           }
@@ -36,8 +46,9 @@ export default {
           if(result.data.err1){
             this.$Message.error('内部服务器错误！');
           }else{
+            setTimeout(msg, 0);
+            this.flag = false;
             this.articles = result.data;
-            console.log(result.data);
           }
         })
     },
@@ -53,6 +64,7 @@ export default {
 <style scoped>
 .hello{
   background-image: url('../assets/images/bg-02.jpg');
+  background-repeat:repeat; 
   padding-top: 20px;
 }
 ul{

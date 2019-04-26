@@ -213,8 +213,8 @@ exports.doUpdateArticle = function(req,res){
     "input":input,
     "author":author,
     "publishtime":ttt,
-    "count_read":'0',
-    "count_comment":'0'
+    "count_read":0,
+    "count_comment":0
   }},function(err,result){
     if(err){
         res.send('-1'); //服务器错误
@@ -266,12 +266,29 @@ exports.doPublishComment = function(req,res){
     "content":content,
     "author":author,
     "publishtime":ttt,
-    "article_id":article_id //并非数据库自动创建的id，而是被评论文章的id
+    "article_id":article_id, //并非数据库自动创建的id，而是被评论文章的id
+    "thumbsup_count":0
   },function(err,result){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;
     }
+    // 评论插入书库后，随机查询得到这篇文章的评论数，加一后更新
+    db.find("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},function(err,result){
+      if(err){
+          res.send('{"err1":"服务器错误"}'); //服务器错误
+          return;
+      }
+      result[0].count_comment++;  //评论数加一
+      db.updateMany("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},{$set:{
+        "count_comment":result[0].count_comment
+      }},function(err,result){
+        if(err){
+            res.send('-1'); //服务器错误
+            return;
+        }
+      })
+    })
     res.send('{"success":"true"}'); 
   });
 }
@@ -291,3 +308,61 @@ exports.doFindComments = function(req,res){
     res.send(result); 
   })
 }
+
+
+
+
+
+//查询一个用户的所有评论业务实现
+exports.doFindArticleComments = function(req,res){
+  var author = req.query.author;
+  db.find("blogsystem","comments",{"author":author},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    res.send(result); 
+  })
+}
+
+
+
+
+//得到用户所有文章，不加条数限制
+exports.getArticleCount = function(req,res){
+  var author = req.query.author;
+
+  db.find("blogsystem","articles",{"author":author},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    res.send(result); 
+  })
+};
+
+
+
+
+
+//点赞
+exports.doAddThumbsup = function(req,res){
+  var comment_id = req.query.comment_id;
+
+  db.find("blogsystem","comments",{"_id":mongoose.Types.ObjectId(comment_id)},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    result[0].thumbsup_count++;
+    db.updateMany("blogsystem","comments",{"_id":mongoose.Types.ObjectId(comment_id)},{$set:{
+      "thumbsup_count":result[0].thumbsup_count
+    }},function(err,result){
+      if(err){
+          res.send('-1'); //服务器错误
+          return;
+      }
+    })
+    res.send(result); 
+  })
+};
