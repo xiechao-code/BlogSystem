@@ -37,6 +37,8 @@ app.get("/dofindcomments",controller.doFindComments);  //查询一篇文章的�
 app.get("/dofindarticlecomments",controller.doFindArticleComments); //得到一个用户所有评论
 app.get("/getarticlecount",controller.getArticleCount); //得到所有文章条数
 app.get("/doaddthumbsup",controller.doAddThumbsup); //给评论点赞
+app.get("/dochangeuserdate",controller.doChangeUserDate); //给评论点赞
+app.get("/dofinduserdata",controller.doFindUserData); //给评论点赞
 
   
 

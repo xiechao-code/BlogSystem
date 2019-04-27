@@ -259,7 +259,7 @@ exports.doFindArticle = function(req,res){
 exports.doPublishComment = function(req,res){
   var article_id = req.query.article_id;
   var content = req.query.content;
-  var author = req.query.author;
+  var author = req.query.author;  //发布评论的人
   var ttt = sd.format(new Date(),'YYYY/MM/DD HH:mm:ss');
 
   db.insertOne("blogsystem","comments",{
@@ -363,6 +363,80 @@ exports.doAddThumbsup = function(req,res){
           return;
       }
     })
+    res.send(result); 
+  })
+};
+
+
+
+
+
+//插入用户资料
+exports.doChangeUserDate = function(req,res){
+  var nicheng = req.query.nicheng;
+  var truename = req.query.truename;
+  var job = req.query.job;
+  var sex = req.query.sex;
+  var birthday = req.query.birthday;
+  var Industry = req.query.Industry;
+  var introduction = req.query.introduction;
+  var username = req.query.username;
+  var ttt = sd.format(birthday,'YYYY/MM/DD');
+
+  db.find("blogsystem","userdata",{"username":username},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    if(result.length==0){
+      db.insertOne("blogsystem","userdata",{
+        'nicheng':nicheng,
+        'truename':truename,
+        'job':job,
+        'sex':sex,
+        'birthday':ttt,
+        'Industry':Industry,
+        'introduction':introduction,
+        'username':username
+      },function(err,resut){
+        if(err){
+          res.send('-1')
+          return;
+        }
+        res.send('1');
+      })
+    }else{
+      db.updateMany("blogsystem","userdata",{"username":username},{$set:{
+        'nicheng':nicheng,
+        'truename':truename,
+        'job':job,
+        'sex':sex,
+        'birthday':ttt,
+        'Industry':Industry,
+        'introduction':introduction
+      }},function(err,result){
+        if(err){
+          res.send('-1')
+          return;
+        }
+        res.send('2');
+      })  
+    }
+  }) 
+}
+
+
+
+
+//得到用户资料
+exports.doFindUserData = function(req,res){
+  var username = req.query.username;
+
+  db.find("blogsystem","userdata",{"username":username},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
     res.send(result); 
   })
 };

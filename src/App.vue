@@ -37,7 +37,7 @@
                         MENU
                       </template>
                         <MenuGroup title="菜单" class="MenuGroup">
-                            <MenuItem name="3-1">个人中心</MenuItem>
+                            <MenuItem name="3-1"><router-link to="/Usercenter" style="color:#515a6e">个人中心</router-link></MenuItem>
                             <MenuItem name="3-2"><router-link to="/myblog" style="color:#515a6e">我的博客</router-link></MenuItem>
                             <MenuItem name="3-3"><router-link to="/Manageblog" style="color:#515a6e">博客管理</router-link></MenuItem>
                             <Divider style="margin: 4px 0;"/>
@@ -60,7 +60,7 @@ export default {
     return{
       msg:'专业IT技术分享博客~~~   ',
       intervalid:null , //在data上定义定时器id
-      islogin:this.$store.state.islogin
+      islogin:''
     };
   },
   created(){
@@ -84,7 +84,9 @@ export default {
     iflogin(){  //判断登录状态
       //刷新了页面导致vuex失效了，所以还需要重新判断一下
       this.$store.commit('login',JSON.parse(sessionStorage.getItem("islogin")));
-      this.islogin = this.$store.state.islogin;
+      if(this.$store.state.islogin){
+        this.islogin = this.$store.state.islogin;
+      }  
     },
     unlogin(){  //注销登录，将登录状态为false传回store
       this.$Modal.confirm({  //iview对话框
@@ -92,6 +94,7 @@ export default {
                             content: "点击确认注销登录！",
                             onOk: () => {
                             this.$store.commit('unlogin',false);
+                            this.islogin = false;
                             this.$router.push('/Login');
                             },
                             onCancel: () => {

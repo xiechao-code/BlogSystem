@@ -61,10 +61,10 @@ export default {
               //调用 store 里的方法，将登录状态 true 传过去，result.data.success来自后台node返回的数据
               this.$store.commit('login',result.data.success);
               // this.$Message.success('登陆成功，页面在1秒后跳转...');
-              var r = this.$router;
               //设置定时器，1s后跳转到我的博客
                     function Redirect() {
-                        r.push("/Myblog"); 
+                      window.location = "/Myblog";
+                      // this.$router.push('/');  vue中不刷新页面跳转
                     }
                     setTimeout(function () {
                         Redirect();

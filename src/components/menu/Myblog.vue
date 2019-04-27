@@ -164,6 +164,7 @@ export default {
             setTimeout(msg,0); //后台数据返回，关闭加载中提示框
             if(result.data.length!=0){
               this.article = result.data;
+              this.$store.state.article = result.data;  //将文章数组存入store仓储，共多个页面使用
             }else if(result.data.length==0){
               this.flag = true;
               this.article = result.data;
@@ -487,10 +488,10 @@ export default {
 .sort-type a:link{
   color:#525252;
 }
-.sort-type a:hover{
+.sort-type a:visited{
   color:#ffa202;
 }
-.sort-type a:visited{
+.sort-type a:hover{
   color:#ffa202;
 }
 .right-box .articl-list li .article-type{  /*原创小徽标*/
