@@ -6,6 +6,7 @@
           <div>
             <h2><span class="article-type">{{article_type}}</span>{{title}}</h2>
             <span>{{time}}</span><span>作者:{{author}}</span><span>阅读数:{{count_read}}</span><span>分类:{{blog_type}}</span>
+            <router-link to="/Manageblog" style="font-size: 16px;float:right;">管理博客</router-link>
           </div>
         </div>
         <hr style="margin: 15px 0;">

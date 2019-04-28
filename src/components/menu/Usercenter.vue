@@ -24,11 +24,12 @@
       <div class="content">
         <div class="personal_data">
           <h2>个人资料</h2>
-          <div>
+          <div style="padding: 8px 0;">
             <Avatar class="avatar" src="https://i.loli.net/2017/08/21/599a521472424.jpg" />
+            <h3>ID: {{username}}</h3>
+            <span>修改头像</span>
           </div>
-          <div v-for="item in userdata" v-bind:key="item._id">
-            <h2>ID: {{item.username}}</h2>
+          <div v-for="item in userdata" v-bind:key="item._id"  class="data-list">
             <p>昵称：{{item.nicheng}}</p>
             <p>实名：{{item.truename}}</p>
             <p>性别：{{item.sex}}</p>
@@ -37,21 +38,30 @@
             <p>职位：{{item.job}}</p>
             <p>简介：{{item.introduction}}</p>
           </div>
-          <span @click="value1 = true">修改资料</span>
+          <div v-show="flag" class="data-list2">
+            <p>昵称：无</p>
+            <p>实名：无</p>
+            <p>性别：无</p>
+            <p>生日：无</p>
+            <p>行业：无</p>
+            <p>职位：无</p>
+            <p>简介：无</p>
+          </div>
+          <span @click="value1 = true" class="changedata-btn">修改资料</span>
         </div>
       </div>
-      <Drawer title="修改资料" :closable="true" v-model="value1" width="500">
+      <Drawer title="修改资料" :closable="true" v-model="value1" width="400" class="form-list">
         <div>
           <label>昵称:</label>
-          <Input v-model="nicheng" placeholder="Enter something..." style="width:200px" />
+          <Input v-model="nicheng" placeholder="输入昵称" style="width:200px" />
         </div>
         <div>
           <label>实名:</label>
-          <Input v-model="truename" placeholder="Enter something..." style="width:200px" />
+          <Input v-model="truename" placeholder="输入实名" style="width:200px" />
         </div>
         <div>
           <label>职位:</label>
-          <Input v-model="job" placeholder="Enter something..." style="width:200px" />
+          <Input v-model="job" placeholder="输入职位" style="width:200px" />
         </div>
         <div>
           <label>性别:</label>
@@ -62,7 +72,7 @@
         </div>
         <div>
           <label>生日:</label>
-          <DatePicker type="date" placeholder="Select date" style="width: 200px" v-model="birthday"></DatePicker>
+          <DatePicker type="date" placeholder="请选择日期" style="width: 200px" v-model="birthday"></DatePicker>
         </div>
         <div>
           <label>行业:</label>
@@ -72,7 +82,7 @@
         </div>
         <div>
           <label>简介:</label>
-          <Input v-model="introduction" type="textarea" :rows="4" placeholder="Enter something..." />
+          <Input v-model="introduction" type="textarea" :rows="4" placeholder="请输入简介" />
         </div>
         <Button type="primary" @click="submit">确定</Button>
       </Drawer>
@@ -84,6 +94,7 @@
 export default {
   data(){
     return{
+      flag:true,
       value1: false ,//控制抽屉显示
       username:this.$store.state.username,
       nicheng:'',
@@ -139,10 +150,15 @@ export default {
           'introduction':this.introduction
         }
       }).then(result=>{
-        window.location='/Usercenter';
+        if(result.data=='1'){
+          this.$Message.success("资料修改成功");
+          this.value1 = false;
+          this.findUserData();
+        }
         if(result.data=='2'){
-          this.$Message.warning("资料修改成功");
-          window.location='/Usercenter';
+          this.$Message.success("资料修改成功");
+          this.value1 = false;
+          this.findUserData();
         }
       })
     },
@@ -152,8 +168,18 @@ export default {
           'username':this.$store.state.username
         }
       }).then(result=>{
-        this.userdata = result.data;
-        console.log(this.birthday);
+        if(result.data!=''){
+          this.flag = false;
+          this.userdata = result.data;
+        //绑定输入框的值，当点击修改时，把这些作为默认值显示在输入框
+          this.truename = result.data[0].truename;
+          this.nicheng = result.data[0].nicheng;
+          this.job = result.data[0].job;
+          this.sex = result.data[0].sex;
+          this.birthday = result.data[0].birthday;
+          this.Industry = result.data[0].Industry;
+          this.introduction = result.data[0].introduction;
+        }
       })
     }
   }
@@ -164,7 +190,7 @@ export default {
 #app .container{
   width: 1200px;
   margin:0 auto;
-  height: 600px;
+  height: 550px;
   background-color:#fff;
   padding-top: 30px;
 }
@@ -182,5 +208,37 @@ export default {
   color: #373737;
   height: 65px;
   border-bottom: 1px solid #ccc;
+}
+.content .personal_data h3{
+  color: #373737;
+  height: 55px;
+  border-bottom: 1px solid #ccc;
+  display: inline-block;
+  margin-left: 46px;
+  font-size: 20px;
+  width: 82%;
+}
+.form-list div{
+  margin-bottom: 10px;
+}
+.ivu-avatar{
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+  border-radius: 50px;
+}
+.data-list,.data-list2{
+  font-size: 14px;
+  color: #4d4d4d;
+  margin-left: 148px;
+  line-height: 30px;
+}
+.changedata-btn{
+  font-size: 16px;
+  color: #ff7600;
+  cursor: pointer;
+  position: relative;
+  top: -204px;
+  left: 775px;
 }
 </style>

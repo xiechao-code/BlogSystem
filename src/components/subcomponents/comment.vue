@@ -62,7 +62,7 @@ export default {
         this.$axios.get("/dopublishcomment",{
         params:{
           'article_id':this.id,  //父组件传过来的被评论文章id
-          'author':this.$store.state.username,
+          'author_cmt':this.$store.state.username,  //这个author是指评论这篇文章的人
           'content':this.value
           }
         }).then(result=>{

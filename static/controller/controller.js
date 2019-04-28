@@ -259,38 +259,40 @@ exports.doFindArticle = function(req,res){
 exports.doPublishComment = function(req,res){
   var article_id = req.query.article_id;
   var content = req.query.content;
-  var author = req.query.author;  //发布评论的人
+  var author_cmt = req.query.author_cmt;  //发布评论的人
   var ttt = sd.format(new Date(),'YYYY/MM/DD HH:mm:ss');
 
-  db.insertOne("blogsystem","comments",{
-    "content":content,
-    "author":author,
-    "publishtime":ttt,
-    "article_id":article_id, //并非数据库自动创建的id，而是被评论文章的id
-    "thumbsup_count":0
-  },function(err,result){
+  // 评论插入书库后，随机查询得到这篇文章的评论数，加一后更新
+  db.find("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},function(err,result1){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;
     }
-    // 评论插入书库后，随机查询得到这篇文章的评论数，加一后更新
-    db.find("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},function(err,result){
+    var author = result1[0].author;
+    result1[0].count_comment++;  //评论数加一
+    db.insertOne("blogsystem","comments",{
+      "content":content,
+      "author_cmt":author_cmt,  //评论这篇文章的作者
+      "author":author,  //创作这篇文章的作者
+      "publishtime":ttt,
+      "article_id":article_id, //并非数据库自动创建的id，而是被评论文章的id
+      "thumbsup_count":0
+    },function(err,result3){
       if(err){
           res.send('{"err1":"服务器错误"}'); //服务器错误
           return;
       }
-      result[0].count_comment++;  //评论数加一
       db.updateMany("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},{$set:{
-        "count_comment":result[0].count_comment
-      }},function(err,result){
+        "count_comment":result1[0].count_comment
+      }},function(err,result2){
         if(err){
             res.send('-1'); //服务器错误
             return;
         }
+        res.send('{"success":"true"}');
       })
-    })
-    res.send('{"success":"true"}'); 
-  });
+    }); 
+  })
 }
 
 

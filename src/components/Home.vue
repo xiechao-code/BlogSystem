@@ -96,7 +96,7 @@ ul li:hover{
 .article_content{
   color: #8e8e8e;
   font-size: 14px;
-  height: 45px;
+  height: 40px;
   white-space: normal;  /*文本自动处理换行*/
   letter-spacing:1px;
   /* 以下设置文本超出显示省略号 */

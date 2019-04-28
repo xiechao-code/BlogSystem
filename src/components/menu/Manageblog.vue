@@ -62,7 +62,20 @@ export default {
   },
   methods:{
     getArticle(){
-      this.article = this.$store.state.article;  //注意：刷新页面会使状态管理器失效
+      //this.article = this.$store.state.article;  注意：刷新页面会使状态管理器失效,所以不采用这个方式
+      this.$axios.get("/dofindarticles",{
+        params:{
+          'author': this.$store.state.username,
+          'pageamount':50,
+          'sorttype':'publishtime'
+          }
+        }).then(result =>{
+          if(result.data.err1){
+            this.$Message.error('内部服务器错误！');
+          }else{
+          this.article = result.data;
+          }
+        })
     },
     delete_article(id){ //删除文章
       this.$Modal.confirm({  //iview对话框
