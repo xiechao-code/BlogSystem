@@ -2,6 +2,9 @@ var db = require("../models/db.js");
 var md5 = require("../models/md5.js");
 var sd = require("silly-datetime"); //时间格式化
 var mongoose = require("mongoose"); //将字符将id转换为mongodb的ObjectID型需要的包
+var formidable = require("formidable");  //导入处理文件上传的管理模块
+var path = require("path");  //用于上传头像保存文件
+var fs = require("fs");
 
 
 //注册业务实现
@@ -256,23 +259,33 @@ exports.doFindArticle = function(req,res){
 
 
 //发布评论业务实现
+//整个业务实现为，1.先通过被评论文章的id，查询文章表，得到此文章的评论数，然后加一；
+//2.通过评论人的用户名查询用户资料表，得到此用户的昵称，用于显示谁做出的评论
+//3.将评论数据插入评论表
+//4.更新文章表的此文章的评论数
 exports.doPublishComment = function(req,res){
   var article_id = req.query.article_id;
   var content = req.query.content;
   var author_cmt = req.query.author_cmt;  //发布评论的人
   var ttt = sd.format(new Date(),'YYYY/MM/DD HH:mm:ss');
 
-  // 评论插入书库后，随机查询得到这篇文章的评论数，加一后更新
+  // 查询得到这篇文章的评论数，加一后更新
   db.find("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},function(err,result1){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;
     }
-    var author = result1[0].author;
+    db.find("blogsystem","userdata",{"username":author_cmt},function(err,result4){
+      if(err){
+          res.send('{"err1":"服务器错误"}'); //服务器错误
+          return;
+      }
+      var nickname = result4[0].nickname;
+      var author = result1[0].author;
     result1[0].count_comment++;  //评论数加一
     db.insertOne("blogsystem","comments",{
       "content":content,
-      "author_cmt":author_cmt,  //评论这篇文章的作者
+      "author_cmt":nickname,  //评论这篇文章的作者的昵称
       "author":author,  //创作这篇文章的作者
       "publishtime":ttt,
       "article_id":article_id, //并非数据库自动创建的id，而是被评论文章的id
@@ -291,7 +304,8 @@ exports.doPublishComment = function(req,res){
         }
         res.send('{"success":"true"}');
       })
-    }); 
+    });
+    }) 
   })
 }
 
@@ -375,7 +389,7 @@ exports.doAddThumbsup = function(req,res){
 
 //插入用户资料
 exports.doChangeUserDate = function(req,res){
-  var nicheng = req.query.nicheng;
+  var nickname = req.query.nickname;
   var truename = req.query.truename;
   var job = req.query.job;
   var sex = req.query.sex;
@@ -392,7 +406,7 @@ exports.doChangeUserDate = function(req,res){
     }
     if(result.length==0){
       db.insertOne("blogsystem","userdata",{
-        'nicheng':nicheng,
+        'nickname':nickname,
         'truename':truename,
         'job':job,
         'sex':sex,
@@ -409,7 +423,7 @@ exports.doChangeUserDate = function(req,res){
       })
     }else{
       db.updateMany("blogsystem","userdata",{"username":username},{$set:{
-        'nicheng':nicheng,
+        'nickname':nickname,
         'truename':truename,
         'job':job,
         'sex':sex,
@@ -430,11 +444,55 @@ exports.doChangeUserDate = function(req,res){
 
 
 
-//得到用户资料
+//得到用户个人资料
 exports.doFindUserData = function(req,res){
   var username = req.query.username;
 
   db.find("blogsystem","userdata",{"username":username},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    res.send(result); 
+  })
+};
+
+
+
+
+
+//上传头像业务
+exports.doSetAvatar = function(req,res){
+  var form = new formidable.IncomingForm();
+  //设置上传到哪个文件夹
+  form.uploadDir = path.normalize(__dirname + "/../avatar");
+  form.parse(req,function(err,fields,files){
+    // console.log(fields); 输出为{ username: '谢超' } 文本内容。files为文件,如图片。
+    //改名和添加后缀
+    var oldpath = files.file.path;
+    //前面部分是地址，后面是文件名
+    var newpath = path.normalize(__dirname + "/../avatar") + "/" + fields.username + ".jpg";
+    fs.rename(oldpath,newpath,function(err){
+      if(err){
+          res.send("上传失败!");
+          return;
+      }
+      //更改数据库当前用户的avatar为上传的图片
+      db.updateMany("blogsystem","users",{username:fields.username},{$set:{"avatar":fields.username + ".jpg"}},function(err,result){
+          res.send("1");
+      });
+    });
+  })
+};
+
+
+
+
+//得到用户头像
+exports.doFindUsers = function(req,res){
+  var username = req.query.username;
+
+  db.find("blogsystem","users",{"username":username},function(err,result){
     if(err){
         res.send('{"err1":"服务器错误"}'); //服务器错误
         return;

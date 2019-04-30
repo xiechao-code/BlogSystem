@@ -9,7 +9,7 @@ export default new Vuex.Store({
     username:"",  //用户名
     avatar:"",  //用户头像
     article_cache:"",  //文章草稿
-    article:[]  //文章数组
+    article:[],  //文章数组
   },
   mutations:{
     login(state,is_login){  //接收组件中传过来的is_login的值，如果为true表示登录
@@ -21,6 +21,9 @@ export default new Vuex.Store({
     unlogin(state,is_login){  //接收组件中传过来的is_login的值，如果为true表示登录
       state.islogin = is_login;
       sessionStorage.setItem("islogin",JSON.stringify(is_login));
+    },
+    getAvatar(state,avatar){
+      state.avatar = avatar;
     }
   }
 });

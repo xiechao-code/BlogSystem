@@ -1,16 +1,15 @@
 <template>
   <div class="cmt-container">
     <div v-show="islogin">  <!---->
-      <Avatar src="https://i.loli.net/2017/08/21/599a521472424.jpg" />
+      <div class="avatar"><img ref="avatar" /></div>
       <Input class="textarea" v-model="value" type="textarea" placeholder="想对作者说点什么..." />
       <Button class="btn" type="error" @click="publishComment">发表评论</Button>
     </div>
     <!-- 评论的内容 -->
     <div class="cmt-list">
       <div class="cmt-item" v-for="(item,i) in comments" v-bind:key="item._id" >
-        <Avatar class="avatar" src="https://i.loli.net/2017/08/21/599a521472424.jpg" />
         <span class="content">
-          <span class="author">{{item.author}}：</span> 
+          <span class="author">{{item.author_cmt}}：</span>  <!--发布评论的人-->
           {{item.content}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           <span class="time">(发布于：<Time :time="item.publishtime" :interval="1" />&nbsp;&nbsp;&nbsp;&nbsp;{{i+1}}楼)</span>  <!--iview时间戳-->
         </span>
@@ -37,6 +36,9 @@ export default {
   created(){
     this.getComments();
   },
+  mounted(){
+    this.getAvatar();
+  },
   methods:{
     getComments(){  //一进入页面就请求此文章的评论
       this.$axios.get("/dofindcomments",{
@@ -58,6 +60,10 @@ export default {
       this.$Message.config({  //设置iview警告框距离顶部的距离
           top: 300
       });
+      const msg = this.$Message.loading({  //iview警告框，显示加载中
+                    content: '发布中...',
+                    duration: 0
+      });
       if(this.value!=''){
         this.$axios.get("/dopublishcomment",{
         params:{
@@ -70,6 +76,7 @@ export default {
               this.$Message.error('内部服务器错误！');
           }
           if(result.data.success){
+              setTimeout(msg,0);
               this.value = '';  //评论发布，清空输入框
               this.$Message.success('评论发布成功！');
               this.getComments();
@@ -96,6 +103,10 @@ export default {
     changeColor(event){  //点赞改变小手的颜色
       var el = event.currentTarget;  //vue中获取当前点击dom元素
       el.style.color='rgb(189, 0, 0)';
+    },
+    getAvatar(){
+      this.$store.commit('getAvatar',JSON.parse(sessionStorage.getItem("avatar")));
+      this.$refs.avatar.src="../../../static/avatar/"+this.$store.state.avatar+"";
     }
   },
   props:["id"] //从父组件Articledetails中传递过来的id,用this.id使用
@@ -108,6 +119,16 @@ export default {
   padding:20px;
   margin-top: 1px;
   margin-bottom: 20px;
+}
+.cmt-container .avatar{
+  width: 35px;
+  height: 35px;
+  float: left;
+  margin-top: 8px;
+}
+.cmt-container .avatar img{
+  width: 100%;
+  border-radius: 50%;
 }
 .textarea{
   width: 94%;
@@ -140,15 +161,14 @@ export default {
 .cmt-list .cmt-item .content{
   display: inline-block;
   width: 700px;
-  margin-left: 40px;
 }
-.cmt-list .cmt-item .avatar{
+/* .cmt-list .cmt-item .avatar{
   position: absolute;
   top: 4px;
   width: 24px;
   height: 24px;
   line-height: 24px;
-}
+} */
 .cmt-list .cmt-item .time{
   font-style:italic;
   color: #b9b9b9;

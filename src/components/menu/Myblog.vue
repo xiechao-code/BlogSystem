@@ -6,8 +6,8 @@
 <!----------------------------------------------------------------------------------------->
       <div class="left-box">
         <div class="box1">
-          <router-link to="/usercenter"><img class="avatar" src="../../assets/avatar/avatar01.jpg" alt="avatar" title="去往个人中心"></router-link>
-          <span>{{username}}</span>
+          <router-link to="/usercenter"><img class="avatar" alt="avatar" ref="avatar"/></router-link>
+          <span>{{nickname}}</span>
         </div>
         <divider />
         <div class="box2">
@@ -132,7 +132,8 @@ export default {
       sorttype:'publishtime' , //默认按照更新时间排序
       username:this.$store.state.username,
       articlecount:'', //用户所有文章数量
-      comment_count:'0' //评论数
+      comment_count:'0', //评论数
+      nickname:this.$store.state.username //昵称默认等于用户名
     }
   },
   created(){
@@ -140,6 +141,11 @@ export default {
     this.findOriginal();  //查询用户所有原创文章
     this.getArticleCount();  //查询用户所有文章，不限制查询条数，主要用于得到文章条数
     this.findArticleComment();
+    this.getAvatar();// 得到用户头像 
+    this.findUserData(); //得到用户资料
+  },
+  mounted(){
+     
   },
   methods:{
     findArticles(){
@@ -262,6 +268,31 @@ export default {
               this.$Message.error('该服务器错误！');
             }
             this.articlecount = result.data.length;
+      })
+    },
+    getAvatar(){  //得到用户头像
+      this.$axios.get("/dofindusers",{
+        params:{
+          "username":this.$store.state.username
+          }
+        }).then(result =>{
+          if(result.data.err1){
+            this.$Message.error('内部服务器错误！');
+          }else{
+            this.avatar = result.data[0].avatar;  //得到用户头像
+            this.$refs.avatar.src="../../../static/avatar/"+ this.avatar +"";
+          }
+        })
+    },
+    findUserData(){  //得到用户数据
+      this.$axios.get('/dofinduserdata',{
+        params:{
+          'username':this.$store.state.username
+        }
+      }).then(result=>{
+        if(result.data!=''){
+          this.nickname = result.data[0].nickname;
+        }
       })
     }
   }

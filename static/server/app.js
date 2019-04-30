@@ -39,6 +39,8 @@ app.get("/getarticlecount",controller.getArticleCount); //得到所有文章条�
 app.get("/doaddthumbsup",controller.doAddThumbsup); //给评论点赞
 app.get("/dochangeuserdate",controller.doChangeUserDate); //给评论点赞
 app.get("/dofinduserdata",controller.doFindUserData); //给评论点赞
+app.post("/dosetavatar",controller.doSetAvatar); //上传头像
+app.get("/dofindusers",controller.doFindUsers); //上传头像
 
   
 

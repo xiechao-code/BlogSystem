@@ -24,13 +24,22 @@
       <div class="content">
         <div class="personal_data">
           <h2>个人资料</h2>
-          <div style="padding: 8px 0;">
-            <Avatar class="avatar" src="https://i.loli.net/2017/08/21/599a521472424.jpg" />
+          <div style="padding: 8px 0;position:relative">
+            <div class="avatar">
+              <img ref="avatar"/>
+            </div> 
             <h3>ID: {{username}}</h3>
-            <span>修改头像</span>
+            <span @click="drawer = true" class="changeAvatar">修改头像</span>
+            <Drawer title="修改头像" placement="left" :closable="true" v-model="drawer">
+              <!-- 上传头像 -->
+              <form>
+                <input type="file" name="avatar" @change="getFile($event)">
+                <Button type="primary" @click="submitForm($event)" style="margin-top:20px">确定上传</button>
+              </form>
+            </Drawer>
           </div>
           <div v-for="item in userdata" v-bind:key="item._id"  class="data-list">
-            <p>昵称：{{item.nicheng}}</p>
+            <p>昵称：{{item.nickname}}</p>
             <p>实名：{{item.truename}}</p>
             <p>性别：{{item.sex}}</p>
             <p>生日：{{item.birthday}}</p>
@@ -53,7 +62,7 @@
       <Drawer title="修改资料" :closable="true" v-model="value1" width="400" class="form-list">
         <div>
           <label>昵称:</label>
-          <Input v-model="nicheng" placeholder="输入昵称" style="width:200px" />
+          <Input v-model="nickname" placeholder="输入昵称" style="width:200px" />
         </div>
         <div>
           <label>实名:</label>
@@ -95,9 +104,9 @@ export default {
   data(){
     return{
       flag:true,
-      value1: false ,//控制抽屉显示
+      value1: false ,//控制修改个人资料的抽屉显示
       username:this.$store.state.username,
-      nicheng:'',
+      nickname:'',
       truename:'',
       job:'',
       sex:'男',
@@ -130,7 +139,9 @@ export default {
                   }
               ],
       introduction:'',
-      userdata:[]
+      userdata:[],
+      file:'' , //上传的文件
+      drawer:false  //修改头像抽屉
     }
   },
   created(){
@@ -141,7 +152,7 @@ export default {
       this.$axios.get('/dochangeuserdate',{
         params:{
           'username':this.$store.state.username,
-          'nicheng':this.nicheng,
+          'nickname':this.nickname,
           'truename':this.truename,
           'job':this.job,
           'sex':this.sex,
@@ -173,12 +184,42 @@ export default {
           this.userdata = result.data;
         //绑定输入框的值，当点击修改时，把这些作为默认值显示在输入框
           this.truename = result.data[0].truename;
-          this.nicheng = result.data[0].nicheng;
+          this.nickname = result.data[0].nickname;
           this.job = result.data[0].job;
           this.sex = result.data[0].sex;
           this.birthday = result.data[0].birthday;
           this.Industry = result.data[0].Industry;
           this.introduction = result.data[0].introduction;
+        }
+        //因为刷新页面让先前存在vuex里的头像数据没有了，所以进入这个页面，
+        //先从session里取到头像(因为session里面登录时就写入了头像，刷新不会消失)，再把值传回vuex
+        this.$store.commit('getAvatar',JSON.parse(sessionStorage.getItem("avatar")));
+        this.$refs.avatar.src="../../../static/avatar/"+this.$store.state.avatar+"";
+      })
+    },
+    getFile(e){
+      this.file = e.target.files[0];  //得到上传的文件
+    },
+    submitForm(e){
+      e.preventDefault();
+      let formData = new FormData;
+      formData.append('file',this.file);  //图片文件
+      formData.append('username',this.$store.state.username);  //文本文件
+
+      let config = {  //设置请求头
+        headers:{
+          'Content-Type':'multipart/form-data'
+        }
+      }
+
+      this.$axios.post("/dosetavatar",formData,{config}).then(result=>{
+        if(result.data=='1'){
+          this.$Message.success("上传成功!");
+          this.drawer = false;
+          setTimeout(function () {
+            window.location = "/Usercenter";  //刷新页面头像才会重新载入
+          },1000);
+          window.clearTimeout();
         }
       })
     }
@@ -218,14 +259,29 @@ export default {
   font-size: 20px;
   width: 82%;
 }
+.content .personal_data .changeAvatar{
+  position: absolute;
+  left: 18px;
+  top: 120px;
+  font-size: 16px;
+  color: #2e8cf0;
+  cursor: pointer;
+}
 .form-list div{
   margin-bottom: 10px;
 }
-.ivu-avatar{
+.avatar{
   width: 100px;
   height: 100px;
   line-height: 100px;
   border-radius: 50px;
+  border: 1px solid #ddd;
+  float: left;
+}
+.avatar img{
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
 }
 .data-list,.data-list2{
   font-size: 14px;

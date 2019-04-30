@@ -29,8 +29,8 @@
                         <router-link :to="'/Newnote/' + 0"><Icon type="ios-book"></Icon>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
                         写博客</router-link>
                     </MenuItem>
-                    <MenuItem name="3">
-                        <router-link to="/myblog"><Avatar/></router-link>
+                    <MenuItem name="3" style="height:64px">
+                        <router-link to="/myblog"><img ref="avatar" class="avatar"/></router-link>
                     </MenuItem>
                     <Submenu name="4">
                       <template slot="title">
@@ -60,12 +60,14 @@ export default {
     return{
       msg:'专业IT技术分享博客~~~   ',
       intervalid:null , //在data上定义定时器id
-      islogin:''
+      islogin:'',
+      avatar:''
     };
   },
   created(){
     this.Roll(),
-    this.iflogin() //一进来就判断登录状态
+    this.iflogin(), //一进来就判断登录状态
+    this.findUsers()
   },
   methods:{
     Roll(){//实现跑马灯效果（文字滚动）
@@ -101,6 +103,22 @@ export default {
                             return;
                             }
                           });
+    },
+    findUsers(){  //查询用户表，得到用户头像
+      this.$axios.get("/dofindusers",{
+        params:{
+          "username":this.$store.state.username
+          }
+        }).then(result =>{
+          if(result.data.err1){
+            this.$Message.error('内部服务器错误！');
+          }else{
+            this.avatar = result.data[0].avatar;  //得到用户头像
+            this.$refs.avatar.src="../static/avatar/"+ this.avatar +"";
+            this.$store.commit('getAvatar',this.avatar);
+            sessionStorage.setItem("avatar",JSON.stringify(this.avatar)); //将头像存入session，因为刷新页面会使vuex失效
+          }
+        })
     }
   }
 }
@@ -197,11 +215,11 @@ export default {
     font-size: 16px;
     color: #8d9dc1;
   }
-  .ivu-avatar{
-    background-image: url(./assets/avatar/avatar01.jpg);
-    background-repeat:no-repeat;
-    background-position: center;
-    background-size: 100%;  
+  .avatar{
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    margin-top: 10px; 
   }
   .ivu-menu-horizontal .ivu-menu-submenu .ivu-select-dropdown .ivu-menu-item{
     height: 40px;
