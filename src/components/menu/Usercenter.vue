@@ -48,7 +48,7 @@
             <p>简介：{{item.introduction}}</p>
           </div>
           <div v-show="flag" class="data-list2">
-            <p>昵称：无</p>
+            <p>昵称：{{username}}</p>
             <p>实名：无</p>
             <p>性别：无</p>
             <p>生日：无</p>

@@ -280,7 +280,11 @@ exports.doPublishComment = function(req,res){
           res.send('{"err1":"服务器错误"}'); //服务器错误
           return;
       }
-      var nickname = result4[0].nickname;
+      if(result4==''){  //如果用户还未修改过个人资料，就把昵称设置成用户名
+        var nickname = author_cmt;
+      }else{
+        var nickname = result4[0].nickname;
+      } 
       var author = result1[0].author;
     result1[0].count_comment++;  //评论数加一
     db.insertOne("blogsystem","comments",{
