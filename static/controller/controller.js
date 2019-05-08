@@ -348,6 +348,39 @@ exports.doFindArticleComments = function(req,res){
 
 
 
+//删除一条评论业务实现
+exports.doDeleteComments = function(req,res){
+  var comments_id = req.query.comments_id;  //数据库生成的评论的_id
+  var article_id = req.query.article_id; //文章的_id
+  console.log(article_id)
+  db.deleteMany("blogsystem","comments",{"_id":mongoose.Types.ObjectId(comments_id)},function(err,result){
+    if(err){
+        res.send('{"err1":"服务器错误"}'); //服务器错误
+        return;
+    }
+    db.find("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},function(err,result1){
+      if(err){
+          res.send('{"err1":"服务器错误"}'); //服务器错误
+          return;
+      }
+      result1[0].count_comment--;  //评论数减一
+      db.updateMany("blogsystem","articles",{"_id":mongoose.Types.ObjectId(article_id)},{$set:{
+        "count_comment":result1[0].count_comment
+      }},function(err,result2){
+        if(err){
+            res.send('{"err1":"服务器错误"}'); //服务器错误
+            return;
+        }
+        res.send('1');
+      })
+    })
+  })
+}
+
+
+
+
+
 //得到用户所有文章，不加条数限制
 exports.getArticleCount = function(req,res){
   var author = req.query.author;

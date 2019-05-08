@@ -33,6 +33,10 @@
                   <TabPane label="评论管理">
                     <div>
                       <h2>我的文章评论</h2>
+                      <li class="commentList" v-for="item in comments" v-bind:key="item._id">
+                        {{item.content}}
+                        <span @click="delete_comments(item._id,item.article_id)">删除</span>
+                      </li>
                     </div>
                   </TabPane>
                   <TabPane label="个人分类管理">
@@ -53,12 +57,14 @@
 export default {
   data(){
     return{
-      article:[],
-      value:''
+      article:[], //文章数组
+      value:'',
+      comments:[] //评论数组
     }
   },
   created(){
     this.getArticle();
+    this.getComments();
   },
   methods:{
     getArticle(){
@@ -67,7 +73,7 @@ export default {
         params:{
           'author': this.$store.state.username,
           'pageamount':50,
-          'sorttype':'publishtime'
+          'sorttype':'publishtime' //排序方式
           }
         }).then(result =>{
           if(result.data.err1){
@@ -92,6 +98,44 @@ export default {
             }
             if(result.data===1){
               this.$Message.success('文章已删除！');
+            }
+          })
+        },
+        onCancel: () => {
+        return;
+        }
+      });
+    },
+    getComments(){  //查询用户评论
+      this.$axios.get("/dofindarticlecomments",{
+        params:{
+          'author': this.$store.state.username,
+          }
+        }).then(result =>{
+          if(result.data.err1){
+            this.$Message.error('内部服务器错误！');
+          }else{
+            this.comments = result.data;
+          }
+        })
+    },
+    delete_comments(id,id2){  //删除评论
+      this.$Modal.confirm({  //iview对话框
+        title: "提示",
+        content: "确定要删除此条评论？",
+        onOk: () => {
+          this.$axios.get("/dodeletecomments",{
+            params:{
+              'comments_id':id,
+              'article_id':id2
+            }
+          }).then(result =>{
+            if(result.data.err1){
+              this.$Message.error('该服务器错误！');
+            }
+            if(result.data===1){
+              this.$Message.success('评论已删除！');
+              this.getComments();
             }
           })
         },
@@ -136,6 +180,21 @@ export default {
 }
 .options span{
   color: darkred;
+  cursor:pointer;
+}
+.commentList{
+  list-style: none;
+  height: 40px;
+  border-bottom: 1px dotted #ddd;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+.commentList span{
+  float:right;
+  color:#b90000;
+}
+.commentList span:hover{
+  color:#ff7300;
   cursor:pointer;
 }
 </style>
